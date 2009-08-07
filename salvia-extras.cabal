@@ -1,0 +1,29 @@
+Name:             salvia-extras
+Version:          0.3.0
+Description:      Collection of non-fundamental request handler for the Salvia web server.
+Synopsis:         Collection of non-fundamental request handler for the Salvia web server.
+Category:         Network, Web
+License:          BSD3
+License-file:     LICENSE
+Author:           Sebastiaan Visser
+Maintainer:       sfvisser@cs.uu.nl
+Cabal-version:    >= 1.6
+Build-Type:       Simple
+Build-Depends:    base ==3.0.*,
+                  network ==2.2.*,
+                  fclabels ==0.2.*,
+                  clevercss ==0.1.*,
+                  hscolour ==1.11.*,
+                  salvia ==0.3.*,
+                  transformers ==0.1.*
+GHC-Options:      -Wall
+HS-Source-Dirs:   src
+Exposed-modules:  Network.Salvia.Handler.CleverCSS,
+                  Network.Salvia.Handler.ExtendedFileSystem,
+                  Network.Salvia.Handler.HsColour
+
+Executable:       salvia-extras-demo
+Main-is:          Demo.hs
+GHC-Options:      -threaded -Wall -fno-warn-orphans
+HS-Source-Dirs:   src 
+
