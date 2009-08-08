@@ -1,5 +1,6 @@
 module Main where
 
+import Control.Applicative
 import Control.Concurrent.STM
 import Control.Monad.Trans
 import Network.Salvia.Handler.ExtendedFileSystem
@@ -23,7 +24,7 @@ main =
 -- Serve the current directory.
 
 myHandler
-  :: (MonadIO m, Request m, Response m, Send m, Socket m)
+  :: (MonadIO m, Alternative m, Request m, Response m, Send m, Socket m)
   => TSession () -> m ()
 myHandler _ = hExtendedFileSystem "."
 
