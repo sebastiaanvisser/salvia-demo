@@ -16,7 +16,8 @@ Build-Depends:    base ==3.0.*,
                   hscolour ==1.11.*,
                   salvia ==0.3.*,
                   transformers ==0.1.*,
-                  sendfile ==0.5.*
+                  sendfile ==0.5.*,
+                  stm ==2.1.*
 GHC-Options:      -Wall
 HS-Source-Dirs:   src
 Exposed-modules:  Network.Salvia.Handler.CleverCSS,
