@@ -12,15 +12,15 @@ import Network.Salvia.Httpd
 import Text.CSS.CleverCSS 
 
 hFilterCSS
-  :: (MonadIO m, Request m, Response m, Send m, Alternative m)
+  :: (MonadIO m, RequestM m, ResponseM m, SendM m, Alternative m)
   => m () -> m () -> m ()
 hFilterCSS css = hExtension (Just "css") (hFile <|> css)
 
-hCleverCSS :: (MonadIO m, Request m, Response m, Send m) => m ()
+hCleverCSS :: (MonadIO m, RequestM m, ResponseM m, SendM m) => m ()
 hCleverCSS = hParameters >>= hParametrizedCleverCSS
 
 hParametrizedCleverCSS
-  :: (MonadIO m, Request m, Response m, Send m)
+  :: (MonadIO m, RequestM m, ResponseM m, SendM m)
   => Parameters -> m ()
 hParametrizedCleverCSS p =
   hRewriteExt (fmap ('c':)) (hFileFilter convert)

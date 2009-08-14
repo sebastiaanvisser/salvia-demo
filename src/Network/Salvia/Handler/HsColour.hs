@@ -9,11 +9,11 @@ module Network.Salvia.Handler.HsColour (
 import Control.Monad.Trans
 import Data.Record.Label
 import Language.Haskell.HsColour.CSS
-import Network.Protocol.Http (contentType, utf8)
+import Network.Protocol.Http
 import Network.Salvia.Handlers
 import Network.Salvia.Httpd
 
-hHighlightHaskell :: Request m => m a -> m a -> m a
+hHighlightHaskell :: RequestM m => m a -> m a -> m a
 hHighlightHaskell highlighter = 
   hExtensionRouter [
     (Just "hs",  highlighter)
@@ -21,19 +21,19 @@ hHighlightHaskell highlighter =
   , (Just "ag",  highlighter)
   ]
 
-hHsColour :: (Send m, Response m, MonadIO m) => FilePath -> m ()
+hHsColour :: (SendM m, ResponseM m, MonadIO m) => FilePath -> m ()
 hHsColour = hHsColourCustomStyle (Left defaultStyleSheet)
 
 -- Left means direct inclusion of stylesheet, right means link to external
 -- stylesheet.
 
 hHsColourCustomStyle
-  :: (Send m, Response m, MonadIO m)
+  :: (SendM m, ResponseM m, MonadIO m)
   => Either String String -> FilePath -> m ()
 hHsColourCustomStyle style r = do
   sendStr (either id makeStyleLink style)
   hFileResourceFilter (hscolour False True "") r
-  response (setM contentType ("text/html", Just utf8))
+  response (contentType =: Just ("text/html", Just "utf-8"))
 
 makeStyleLink :: String -> String
 makeStyleLink css = "<link rel=\"stylesheet\" type=\"text/css\" href=\"" ++ css ++ "\"></link>"

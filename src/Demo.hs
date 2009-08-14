@@ -12,19 +12,19 @@ import Network.Socket hiding (Socket)
 
 main :: IO ()
 main =
-  do conf     <- defaultConfig
-     addr     <- inet_addr "127.0.0.1"
+  do addr     <- inet_addr "127.0.0.1"
      count    <- atomically (newTVar 0)
      sessions <- mkSessions :: IO (Sessions ())
      putStrLn "started"
-     start 
-       (conf { listenAddr = addr, listenPort = 8080 })
+     server
+       (defaultConfig { listenAddr = addr, listenPort = 8080 })
        (hSessionEnv count sessions myHandler)
+       ()
 
 -- Serve the current directory.
 
 myHandler
-  :: (MonadIO m, Alternative m, Request m, Response m, Send m, Socket m)
+  :: (MonadIO m, Alternative m, RequestM m, ResponseM m, SendM m, SocketM m)
   => TSession () -> m ()
 myHandler _ = hExtendedFileSystem "."
 

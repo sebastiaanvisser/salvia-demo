@@ -9,7 +9,7 @@ import Network.Salvia.Handlers
 import Network.Salvia.Httpd
 
 hExtendedFileSystem
-  :: (MonadIO m, Alternative m, Request m, Response m, Send m, Socket m)
+  :: (MonadIO m, Alternative m, RequestM m, ResponseM m, SendM m, SocketM m)
   => String -> m ()
 hExtendedFileSystem dir =
   hFileTypeDispatcher
