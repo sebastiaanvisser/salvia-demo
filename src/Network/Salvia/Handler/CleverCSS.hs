@@ -1,26 +1,29 @@
-module Network.Salvia.Handler.CleverCSS (
-    hFilterCSS
+module Network.Salvia.Handler.CleverCSS
+  ( hFilterCSS
   , hCleverCSS
   , hParametrizedCleverCSS
-  ) where
+  )
+where
 
 import Control.Applicative
 import Control.Monad.Trans
 import Network.Protocol.Uri
-import Network.Salvia.Handlers
-import Network.Salvia.Httpd
+import Network.Protocol.Http
+import Network.Salvia
 import Text.CSS.CleverCSS 
 
 hFilterCSS
-  :: (MonadIO m, RequestM m, ResponseM m, SendM m, Alternative m)
+  :: (MonadIO m, HttpM Request m, HttpM Response m, QueueM m, Alternative m)
   => m () -> m () -> m ()
 hFilterCSS css = hExtension (Just "css") (hFile <|> css)
 
-hCleverCSS :: (MonadIO m, RequestM m, ResponseM m, SendM m) => m ()
-hCleverCSS = hParameters >>= hParametrizedCleverCSS
+hCleverCSS :: (MonadIO m, BodyM Request m, HttpM Request m, QueueM m, HttpM Response m) => m ()
+hCleverCSS = 
+  do p <- hRequestParameters "utf-8"
+     maybe (return ()) hParametrizedCleverCSS p
 
 hParametrizedCleverCSS
-  :: (MonadIO m, RequestM m, ResponseM m, SendM m)
+  :: (MonadIO m, HttpM Request m, HttpM Response m, QueueM m)
   => Parameters -> m ()
 hParametrizedCleverCSS p =
   hRewriteExt (fmap ('c':)) (hFileFilter convert)

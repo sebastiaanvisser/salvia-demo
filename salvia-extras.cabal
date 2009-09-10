@@ -9,24 +9,43 @@ Author:           Sebastiaan Visser
 Maintainer:       sfvisser@cs.uu.nl
 Cabal-version:    >= 1.6
 Build-Type:       Simple
-Build-Depends:    base ==3.0.*,
-                  network ==2.2.*,
-                  fclabels ==0.2.*,
-                  clevercss ==0.1.*,
-                  hscolour ==1.11.*,
-                  salvia ==0.3.*,
-                  transformers ==0.1.*,
-                  sendfile ==0.5.*,
-                  stm ==2.1.*
-GHC-Options:      -Wall
-HS-Source-Dirs:   src
-Exposed-modules:  Network.Salvia.Handler.CleverCSS,
-                  Network.Salvia.Handler.ExtendedFileSystem,
-                  Network.Salvia.Handler.SendFile,
-                  Network.Salvia.Handler.HsColour
 
-Executable:       salvia-extras-demo
-Main-is:          Demo.hs
-GHC-Options:      -threaded -Wall -fno-warn-orphans
-HS-Source-Dirs:   src 
+Library
+  GHC-Options:      -Wall
+  HS-Source-Dirs:   src
+  Build-Depends:    base < 5,
+                    clevercss ==0.1.*,
+                    salvia ==0.3.*,
+                    salvia-protocol ==0.1.*,
+                    transformers ==0.1.*,
+                    fclabels ==0.4.*,
+                    hscolour ==1.11,
+                    network ==2.2.*,
+                    stm ==2.1.*,
+                    parsec ==3.0.0,
+                    sendfile ==0.5.*
+  Exposed-modules:  Network.Salvia.Handler.CleverCSS,
+                    Network.Salvia.Handler.ExtendedFileSystem,
+                    Network.Salvia.Handler.SendFile,
+                    Network.Salvia.Handler.HsColour
+  Extensions:       FlexibleContexts
+                    FlexibleInstances 
+                    RankNTypes
+                    ScopedTypeVariables
+                    TypeOperators
+                    MultiParamTypeClasses
+                    GeneralizedNewtypeDeriving
+
+Executable          salvia-extras-demo
+  Executable:       salvia-extras-demo
+  Main-is:          Demo.hs
+  GHC-Options:      -threaded -Wall -fno-warn-orphans
+  HS-Source-Dirs:   src 
+  Extensions:       FlexibleContexts
+                    FlexibleInstances 
+                    RankNTypes
+                    ScopedTypeVariables
+                    TypeOperators
+                    MultiParamTypeClasses
+                    GeneralizedNewtypeDeriving
 

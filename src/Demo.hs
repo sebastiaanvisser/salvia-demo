@@ -3,9 +3,10 @@ module Main where
 import Control.Applicative
 import Control.Concurrent.STM
 import Control.Monad.Trans
+import Network.Protocol.Http hiding (server)
+import Network.Salvia hiding (server)
+import Network.Salvia.Core.Server
 import Network.Salvia.Handler.ExtendedFileSystem
-import Network.Salvia.Handlers
-import Network.Salvia.Httpd
 import Network.Socket hiding (Socket)
 
 -- Serve the current directory.
@@ -24,7 +25,7 @@ main =
 -- Serve the current directory.
 
 myHandler
-  :: (MonadIO m, Alternative m, RequestM m, ResponseM m, SendM m, SocketM m)
+  :: (MonadIO m, BodyM Request m, HttpM Request m, HttpM Response m, QueueM m, Alternative m)
   => TSession () -> m ()
 myHandler _ = hExtendedFileSystem "."
 

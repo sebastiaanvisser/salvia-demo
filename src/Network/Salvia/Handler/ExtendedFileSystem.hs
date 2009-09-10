@@ -2,14 +2,14 @@ module Network.Salvia.Handler.ExtendedFileSystem (hExtendedFileSystem) where
 
 import Control.Applicative
 import Control.Monad.Trans
+import Network.Protocol.Http
+import Network.Salvia
 import Network.Salvia.Handler.CleverCSS
 import Network.Salvia.Handler.HsColour
 import Network.Salvia.Handler.SendFile
-import Network.Salvia.Handlers
-import Network.Salvia.Httpd
 
 hExtendedFileSystem
-  :: (MonadIO m, Alternative m, RequestM m, ResponseM m, SendM m, SocketM m)
+  :: (MonadIO m, HttpM Request m, HttpM Response m, QueueM m, BodyM Request m, Alternative m)
   => String -> m ()
 hExtendedFileSystem dir =
   hFileTypeDispatcher
