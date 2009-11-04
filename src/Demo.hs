@@ -30,7 +30,7 @@ main =
                 , ("/logout",    logout)
                 , ("/login",     login udb unauth (const $ hRedirect "/"))
                 , ("/signup",    signup udb ["secret"] unauth (const $ hRedirect "/"))
-                , ("/thesecret", authorized "secret" (hError Unauthorized) (const $ send "surprise!"))
+                , ("/thesecret", authorized "secret" unauth (const $ send "surprise!"))
                 ] $ hExtendedFileSystem "www"
               hColorLogWithCounter count stdout
            where unauth = hCustomError Unauthorized "fail!"
