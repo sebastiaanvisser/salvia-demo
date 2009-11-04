@@ -1,34 +1,40 @@
 module Main where
 
-import Control.Applicative
 import Control.Concurrent.STM
-import Control.Monad.Trans
-import Network.Protocol.Http hiding (server)
 import Network.Salvia hiding (server)
-import Network.Salvia.Core.Server
-import Network.Salvia.Handler.ExtendedFileSystem
+import Network.Protocol.Http (Status (..))
+import Network.Salvia.Impl.Server
 import Network.Salvia.Handler.ColorLog
-import Network.Socket hiding (Socket)
+import Network.Salvia.Handler.ExtendedFileSystem
+import Network.Socket hiding (Socket, send)
 import System.IO
-
--- Serve the current directory.
+import Prelude hiding (read)
 
 main :: IO ()
 main =
   do addr     <- inet_addr "127.0.0.1"
      count    <- atomically (newTVar 0)
-     sessions <- mkSessions :: IO (Sessions ())
-     nul <- openFile "/dev/null" AppendMode
+     sessions <- mkSessions :: IO (Sessions (UserPayload ()))
+
+     udb <- read (fileBackend "users.db") >>= atomically . newTVar
+
+     let myConfig = defaultConfig
+           { listenAddr = addr
+           , listenPort = 8080
+           }
+
+     let myHandler = hDefaultEnv $
+           do prolongSession 60
+              hPathRouter
+                [ ("/loginfo",   hLoginfo)
+                , ("/logout",    logout)
+                , ("/login",     login udb unauth (const $ hRedirect "/"))
+                , ("/signup",    signup udb ["secret"] unauth (const $ hRedirect "/"))
+                , ("/thesecret", authorized "secret" (hError Unauthorized) (const $ send "surprise!"))
+                ] $ hExtendedFileSystem "www"
+              hColorLogWithCounter count stdout
+           where unauth = hCustomError Unauthorized "fail!"
+
      putStrLn "started"
-     server
-       (defaultConfig { listenAddr = addr, listenPort = 8080 })
-       (hSessionEnv nul count sessions (\s -> myHandler s >> hColorLogWithCounter count stdout))
-       ()
-
--- Serve the current directory.
-
-myHandler
-  :: (MonadIO m, BodyM Request m, HttpM Request m, HttpM Response m, QueueM m, Alternative m)
-  => TSession () -> m ()
-myHandler _ = hExtendedFileSystem "."
+     server myConfig myHandler sessions
 

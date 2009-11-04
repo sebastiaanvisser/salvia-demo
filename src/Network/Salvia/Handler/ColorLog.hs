@@ -1,7 +1,9 @@
-module Network.Salvia.Handler.ColorLog {- doc ok -}
-  ( hColorLog
-  , hColorLogWithCounter
-  )
+module Network.Salvia.Handler.ColorLog
+( Counter
+, hColorLog
+, hColorLogWithCounter
+, hCounter
+)
 where
 
 import Control.Applicative
@@ -14,44 +16,57 @@ import Network.Salvia.Core.Aspects hiding (server)
 import System.IO
 import Terminal
 
+type Counter = TVar Integer
+
 {- |
 A simple logger that prints a summery of the request information to the
 specified file handle.
 -}
 
-hColorLog :: (PeerM m, MonadIO m, HttpM Response m, HttpM Request m) => Handle -> m ()
+hColorLog :: (PeerM m, MonadIO m, HttpM' m) => Handle -> m ()
 hColorLog = logger Nothing
 
 {- | Like `hLog` but also prints the request count since server startup. -}
 
-hColorLogWithCounter :: (PeerM m, MonadIO m, HttpM Response m, HttpM Request m) => TVar Int -> Handle -> m ()
-hColorLogWithCounter a = logger (Just a)
+hColorLogWithCounter :: (PeerM m, MonadIO m, HttpM' m) => Counter -> Handle -> m ()
+hColorLogWithCounter a h =
+  do hCounter a
+     c <- Just <$> (liftIO . atomically . readTVar) a
+     logger c h
 
-logger :: (PeerM m, MonadIO m, HttpM Response m, HttpM Request m) => Maybe (TVar Int) -> Handle -> m ()
-logger count handle =
-  do cnt <- case count of
-       Nothing -> return "-"
-       Just c' -> liftIO (show <$> atomically (readTVar c'))
+{- | This handler simply increases the request counter variable. -}
+
+hCounter :: MonadIO m => TVar Integer -> m ()
+hCounter c = (liftIO . atomically) (readTVar c >>= writeTVar c . (+1))
+
+-- Helper functions.
+
+logger :: (PeerM m, MonadIO m, HttpM' m) => Maybe Integer -> Handle -> m ()
+logger mcount handle =
+  do let count = maybe "-" show mcount
      mt <- request  (getM method)
      ur <- request  (getM uri)
      st <- response (getM status)
      dt <- response (getM date)
      ad <- peer
-     let code = codeFromStatus st
-         t = case code of
-                 c | c <= 199 -> blue
-                   | c <= 299 -> green
-                   | c <= 399 -> yellow
-                   | c <= 499 -> red
-                 _            -> magenta
      liftIO
        $ hPutStrLn handle
        $ intercalate " ; "
          [ maybe "" id dt
-         , cnt
+         , count
          , show ad
          , show mt
          , ur
-         , t ++ (show code ++ " " ++ show st) ++ reset
+         , statusToColor st ++ show (codeFromStatus st) ++
+           " " ++ show st ++ reset
          ]
+
+statusToColor :: Status -> String
+statusToColor st =
+  case codeFromStatus st of
+    c | c <= 199 -> blueBold
+      | c <= 299 -> greenBold
+      | c <= 399 -> yellowBold
+      | c <= 499 -> redBold
+    _            -> magentaBold
 

@@ -9,14 +9,13 @@ import Network.Salvia.Handler.HsColour
 import Network.Salvia.Handler.SendFile
 
 hExtendedFileSystem
-  :: (MonadIO m, HttpM Request m, HttpM Response m, QueueM m, BodyM Request m, Alternative m)
+  :: (MonadIO m, HttpM' m, QueueM m, SendM m, BodyM Request m, Alternative m)
   => String -> m ()
-hExtendedFileSystem dir =
-  hFileTypeDispatcher
-  hDirectoryResource (\r ->
-      hHighlightHaskell (hHsColour r)
-    $ hWithDir dir
-    $ hFilterCSS hCleverCSS
-    $ hSendFileResource r
-    ) dir
+hExtendedFileSystem dir = hFileTypeDispatcher hDirectoryResource f dir
+  where
+  f file = hHighlightHaskell (hHsColour file)
+         . hWithDir dir
+         . hFilterCSS hCleverCSS
+         . hSendFileResource 
+         $ file
 

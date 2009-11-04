@@ -7,7 +7,7 @@ import Network.Salvia
 import Network.Socket.SendFile
 import System.IO
 
-hSendFileResource :: (MonadIO m, HttpM Response m, QueueM m) => FilePath -> m ()
+hSendFileResource :: (MonadIO m, HttpM Response m, SendM m, QueueM m) => FilePath -> m ()
 hSendFileResource f =
   hSafeIO (openBinaryFile f ReadMode) $ \fd ->
   hSafeIO (hFileSize fd)              $ \fs ->
