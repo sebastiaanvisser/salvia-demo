@@ -23,18 +23,28 @@ main =
            , listenPort = 8080
            }
 
-     let myHandler = hDefaultEnv $
-           do prolongSession 60
-              hPathRouter
-                [ ("/",           hFileResource "www/index.html")
-                , ("/loginfo",    hLoginfo)
-                , ("/logout",     logout >> hRedirect "/")
-                , ("/login",      login udb unauth (const $ hRedirect "/"))
-                , ("/signup",     signup udb ["secret"] unauth (const $ hRedirect "/"))
-                , ("/users.db",   authorized "secret" unauth (const $ hFileResource "users.db"))
-                , ("/sources",    hCGI "./www/demo.cgi")
-                ] $ hExtendedFileSystem "."
+     let myHandlerEnv handler =
+           do prolongSession (60 * 60) -- Expire after one hour of inactivity.
+              hPortRouter
+                [ ( 8080
+                  , hVirtualHosting
+                      [ ("127.0.0.1", hRedirect "http://localhost:8080/")
+                      ] handler
+                  )
+                ] (hCustomError Forbidden "Public service running on port 8080.")
               hColorLogWithCounter count stdout
+
+     let myHandler = (hDefaultEnv . myHandlerEnv) $
+           do hPathRouter
+                [ ("/",            hFileResource "www/index.html")
+                , ("/favicon.ico", hError BadRequest)
+                , ("/loginfo",     hLoginfo)
+                , ("/logout",      logout >> hRedirect "/")
+                , ("/login",       login udb unauth (const $ hRedirect "/"))
+                , ("/signup",      signup udb ["secret"] unauth (const $ hRedirect "/"))
+                , ("/users.db",    authorized "secret" unauth (const $ hFileResource "users.db"))
+                , ("/sources",     hCGI "./www/demo.cgi")
+                ] $ hExtendedFileSystem "."
            where unauth = hCustomError Unauthorized "unauthorized, please login"
 
      putStrLn "started"
