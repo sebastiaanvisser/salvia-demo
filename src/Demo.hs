@@ -26,14 +26,16 @@ main =
      let myHandler = hDefaultEnv $
            do prolongSession 60
               hPathRouter
-                [ ("/loginfo",   hLoginfo)
-                , ("/logout",    logout)
-                , ("/login",     login udb unauth (const $ hRedirect "/"))
-                , ("/signup",    signup udb ["secret"] unauth (const $ hRedirect "/"))
-                , ("/thesecret", authorized "secret" unauth (const $ send "surprise!"))
-                ] $ hExtendedFileSystem "www"
+                [ ("/",           hFileResource "www/index.html")
+                , ("/loginfo",    hLoginfo)
+                , ("/logout",     logout >> hRedirect "/")
+                , ("/login",      login udb unauth (const $ hRedirect "/"))
+                , ("/signup",     signup udb ["secret"] unauth (const $ hRedirect "/"))
+                , ("/users.db",   authorized "secret" unauth (const $ hFileResource "users.db"))
+                , ("/sources",    hCGI "./www/demo.cgi")
+                ] $ hExtendedFileSystem "."
               hColorLogWithCounter count stdout
-           where unauth = hCustomError Unauthorized "fail!"
+           where unauth = hCustomError Unauthorized "unauthorized, please login"
 
      putStrLn "started"
      server myConfig myHandler sessions
