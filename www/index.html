@@ -6,16 +6,21 @@
 
 <header>
   <h1>Demo</h1>
+  <p id="banner"></p>
 </header>
 
 <ul>
   <li><a href="/loginfo">session and login information</li></a>
-  <li><a href="/www/signup.html">signup form</li></a>
-  <li><a href="/www/login.html">login form</li></a>
+  <li><a href="/signup.html">signup form</li></a>
+  <li><a href="/login.html">login form</li></a>
   <li><a href="/logout">logout</li></a>
   <li><a href="/users.db">user database</li></a>
-  <li><a href="/src">source directory</li></a>
-  <li><a href="/src/Demo.hs">this demo</li></a>
+  <li><a href="/code/">source directory</li></a>
+  <li><a href="/code/Demo.hs">this demo</li></a>
   <li><a href="/sources">CGI demo</li></a>
 </ul>
+
+<script>
+  if ("$username$") document.getElementById("banner").innerHTML = "Welcome: $username$!";
+</script>
 

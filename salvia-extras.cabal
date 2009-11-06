@@ -23,6 +23,7 @@ Library
                     network,
                     monads-fd,
                     stm,
+                    HStringTemplate,
                     parsec,
                     sendfile,
                     utf8-string,

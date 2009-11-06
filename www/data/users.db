@@ -1,0 +1,5 @@
+# user admin has password `a' and write access to this db.
+admin 0cc175b9c0f1b6a831c399e269772661 read-udb write-udb
+sebas 92eb5ffee6ae2fec3ad71c777531578f read-udb 
+kip 6b7850830ec34ccae7cf2179ff8b509e read-udb 
+asd 7815696ecbf1c96e6894b779456d330e read-udb 

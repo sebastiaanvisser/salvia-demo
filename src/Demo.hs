@@ -1,14 +1,18 @@
 module Main where
 
+import Control.Applicative
 import Control.Concurrent.STM
-import Network.Salvia hiding (server)
+import Data.Maybe
+import Data.Record.Label
 import Network.Protocol.Http (Status (..))
-import Network.Salvia.Impl.Server
+import Network.Salvia hiding (server)
 import Network.Salvia.Handler.ColorLog
 import Network.Salvia.Handler.ExtendedFileSystem
+import Network.Salvia.Handler.StringTemplate
+import Network.Salvia.Impl.Server
 import Network.Socket hiding (Socket, send)
-import System.IO
 import Prelude hiding (read)
+import System.IO
 
 main :: IO ()
 main =
@@ -16,14 +20,14 @@ main =
      count    <- atomically (newTVar 0)
      sessions <- mkSessions :: IO (Sessions (UserPayload ()))
 
-     udb <- read (fileBackend "users.db") >>= atomically . newTVar
+     udb <- read (fileBackend "www/data/users.db") >>= atomically . newTVar
 
      let myConfig = defaultConfig
            { listenAddr = addr
            , listenPort = 8080
            }
 
-     let myHandlerEnv handler =
+         myHandlerEnv handler =
            do prolongSession (60 * 60) -- Expire after one hour of inactivity.
               hPortRouter
                 [ ( 8080
@@ -34,18 +38,32 @@ main =
                 ] (hCustomError Forbidden "Public service running on port 8080.")
               hColorLogWithCounter count stdout
 
-     let myHandler = (hDefaultEnv . myHandlerEnv) $
-           do hPathRouter
-                [ ("/",            hFileResource "www/index.html")
-                , ("/favicon.ico", hError BadRequest)
-                , ("/loginfo",     hLoginfo)
-                , ("/logout",      logout >> hRedirect "/")
-                , ("/login",       login udb unauth (const $ hRedirect "/"))
-                , ("/signup",      signup udb ["secret"] unauth (const $ hRedirect "/"))
-                , ("/users.db",    authorized "secret" unauth (const $ hFileResource "users.db"))
-                , ("/sources",     hCGI "./www/demo.cgi")
-                ] $ hExtendedFileSystem "."
-           where unauth = hCustomError Unauthorized "unauthorized, please login"
+         unauth          = hCustomError Unauthorized "unauthorized, please login"
+         whenReadAccess  = authorized (Just "read-udb")  unauth . const
+         whenWriteAccess = authorized (Just "write-udb") unauth . const
+         getUser         = authorized Nothing (return Nothing) (return . Just)
+         initialRights   = ["read-udb"]
+
+         template tmpl =
+           do s <- show . isJust . get sPayload <$> getSession
+              u <- maybe "anonymous" (get username) <$> getUser
+              hStringTemplate tmpl
+                [ ("loggedin", s)
+                , ("username", u)
+                ]
+
+         myHandler = (hDefaultEnv . myHandlerEnv) $
+           do hPrefix "/code" (hExtendedFileSystem "src")
+                $ hPathRouter
+                    [ ("/",            template "www/index.html")
+                    , ("/favicon.ico", hError BadRequest)
+                    , ("/loginfo",     hLoginfo)
+                    , ("/logout",      logout >> hRedirect "/")
+                    , ("/login",       login udb unauth (const $ hRedirect "/"))
+                    , ("/signup",      whenWriteAccess (signup udb initialRights unauth (const $ hRedirect "/")))
+                    , ("/users.db",    whenReadAccess (hFileResource "www/data/users.db"))
+                    , ("/sources",     hCGI "./www/demo.cgi")
+                    ] (hExtendedFileSystem "www")
 
      putStrLn "started"
      server myConfig myHandler sessions
