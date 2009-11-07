@@ -6,6 +6,11 @@ echo "CGI demo"
 echo "<hr>"
 
 echo "<pre>"
+export
+echo "</pre>"
+echo "<hr>"
+
+echo "<pre>"
 cat `find src -name "*.hs"`
 echo "</pre>"
 

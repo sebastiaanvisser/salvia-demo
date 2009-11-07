@@ -1,5 +1,6 @@
 module Main where
 
+import Control.Monad.Trans
 import Control.Applicative
 import Control.Concurrent.STM
 import Data.Maybe
@@ -23,9 +24,9 @@ main =
      udb <- read (fileBackend "www/data/users.db") >>= atomically . newTVar
 
      let myConfig = defaultConfig
-           { listenAddr = addr
-           , listenPort = 8080
-           }
+           { listenOn = [ SockAddrInet 8080 addr
+                        , SockAddrInet 9090 addr
+                        ] }
 
          myHandlerEnv handler =
            do prolongSession (60 * 60) -- Expire after one hour of inactivity.
@@ -33,8 +34,7 @@ main =
                 [ ( 8080
                   , hVirtualHosting
                       [ ("127.0.0.1", hRedirect "http://localhost:8080/")
-                      ] handler
-                  )
+                      ] handler)
                 ] (hCustomError Forbidden "Public service running on port 8080.")
               hColorLogWithCounter count stdout
 
@@ -47,9 +47,11 @@ main =
          template tmpl =
            do s <- show . isJust . get sPayload <$> getSession
               u <- maybe "anonymous" (get username) <$> getUser
+              c <- show <$> liftIO (atomically (readTVar count))
               hStringTemplate tmpl
                 [ ("loggedin", s)
                 , ("username", u)
+                , ("counter",  c)
                 ]
 
          myHandler = (hDefaultEnv . myHandlerEnv) $
@@ -62,7 +64,7 @@ main =
                     , ("/login",       login udb unauth (const $ hRedirect "/"))
                     , ("/signup",      whenWriteAccess (signup udb initialRights unauth (const $ hRedirect "/")))
                     , ("/users.db",    whenReadAccess (hFileResource "www/data/users.db"))
-                    , ("/sources",     hCGI "./www/demo.cgi")
+                    , ("/sources",     hCGI "www/demo.cgi")
                     ] (hExtendedFileSystem "www")
 
      putStrLn "started"
