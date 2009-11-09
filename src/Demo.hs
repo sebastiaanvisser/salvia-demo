@@ -1,3 +1,4 @@
+{-# LANGUAGE OverlappingInstances, IncoherentInstances #-}
 module Main where
 
 import Control.Monad.Trans
@@ -5,7 +6,7 @@ import Control.Applicative
 import Control.Concurrent.STM
 import Data.Maybe
 import Data.Record.Label
-import Network.Protocol.Http (Status (..))
+import Network.Protocol.Http
 import Network.Salvia hiding (server)
 import Network.Salvia.Handler.ColorLog
 import Network.Salvia.Handler.ExtendedFileSystem
@@ -19,7 +20,7 @@ main :: IO ()
 main =
   do addr     <- inet_addr "127.0.0.1"
      count    <- atomically (newTVar 0)
-     sessions <- mkSessions :: IO (Sessions (UserPayload ()))
+     sessions <- mkSessions :: IO (Sessions (UserPayload Bool))
 
      udb <- read (fileBackend "www/data/users.db") >>= atomically . newTVar
 
@@ -27,6 +28,20 @@ main =
            { listenOn = [ SockAddrInet 8080 addr
                         , SockAddrInet 9090 addr
                         ] }
+
+         unauth          = hCustomError Unauthorized "unauthorized, please login"
+         whenReadAccess  = authorized (Just "read-udb")  unauth . const
+         whenWriteAccess = authorized (Just "write-udb") unauth . const
+
+         template tmpl =
+           do s <- show . isJust . get sPayload <$> getSession
+              u <- maybe "anonymous" (get username) <$> hGetUser
+              c <- show . (+1) <$> liftIO (atomically (readTVar count))
+              hStringTemplate tmpl
+                [ ("loggedin", s)
+                , ("username", u)
+                , ("counter",  c)
+                ]
 
          myHandlerEnv handler =
            do prolongSession (60 * 60) -- Expire after one hour of inactivity.
@@ -38,22 +53,6 @@ main =
                 ] (hCustomError Forbidden "Public service running on port 8080.")
               hColorLogWithCounter count stdout
 
-         unauth          = hCustomError Unauthorized "unauthorized, please login"
-         whenReadAccess  = authorized (Just "read-udb")  unauth . const
-         whenWriteAccess = authorized (Just "write-udb") unauth . const
-         getUser         = authorized Nothing (return Nothing) (return . Just)
-         initialRights   = ["read-udb"]
-
-         template tmpl =
-           do s <- show . isJust . get sPayload <$> getSession
-              u <- maybe "anonymous" (get username) <$> getUser
-              c <- show <$> liftIO (atomically (readTVar count))
-              hStringTemplate tmpl
-                [ ("loggedin", s)
-                , ("username", u)
-                , ("counter",  c)
-                ]
-
          myHandler = (hDefaultEnv . myHandlerEnv) $
            do hPrefix "/code" (hExtendedFileSystem "src")
                 $ hPathRouter
@@ -62,11 +61,11 @@ main =
                     , ("/loginfo",     hLoginfo)
                     , ("/logout",      logout >> hRedirect "/")
                     , ("/login",       login udb unauth (const $ hRedirect "/"))
-                    , ("/signup",      whenWriteAccess (signup udb initialRights unauth (const $ hRedirect "/")))
+                    , ("/signup",      whenWriteAccess (signup udb ["read-udb"] unauth (const $ hRedirect "/")))
                     , ("/users.db",    whenReadAccess (hFileResource "www/data/users.db"))
                     , ("/sources",     hCGI "www/demo.cgi")
                     ] (hExtendedFileSystem "www")
 
      putStrLn "started"
-     server myConfig myHandler sessions
+     start myConfig myHandler ((), (True, sessions))
 
