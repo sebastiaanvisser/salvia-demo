@@ -1,6 +1,5 @@
 module Main where
 
-import Control.Monad.Trans
 import Control.Applicative
 import Control.Concurrent.STM
 import Data.Maybe
@@ -14,22 +13,14 @@ import Network.Salvia.Impl.Server
 import Network.Socket hiding (Socket, send)
 import Prelude hiding (read)
 import System.IO
+import qualified Control.Monad.State as S
 
 main :: IO ()
 main =
-  do let unauth          = hCustomError Unauthorized "unauthorized, please login"
-         whenReadAccess  = authorized (Just "read-udb")  unauth . const
-         whenWriteAccess = authorized (Just "write-udb") unauth . const
-
-     addr     <- inet_addr "127.0.0.1"
-     count    <- atomically (newTVar (Counter 0))
-     sessions <- mkSessions >>= atomically . newTVar :: IO (TVar (Sessions (UserPayload Bool)))
-     udb      <- read (fileBackend "www/data/users.db") >>= atomically . newTVar
-
-     let template tmpl =
+  do let template tmpl =
            do s <- show . isJust . get sPayload <$> getSession
               u <- maybe "anonymous" (get username) <$> hGetUser
-              c <- show . (+1) . unCounter <$> liftIO (atomically (readTVar count))
+              c <- show . (+1) . unCounter <$> payload S.get
               hStringTemplate tmpl
                 [ ("loggedin", s)
                 , ("username", u)
@@ -58,6 +49,18 @@ main =
                     , ("/users.db",    whenReadAccess (hFileResource "www/data/users.db"))
                     , ("/sources",     hCGI "www/demo.cgi")
                     ] (hExtendedFileSystem "www")
+           where
+             unauth          = hCustomError Unauthorized "unauthorized, please login"
+             whenReadAccess  = authorized (Just "read-udb")  unauth . const
+             whenWriteAccess = authorized (Just "write-udb") unauth . const
+
+
+     counter  <- atomically (newTVar (Counter 0))
+     sessions <- mkSessions >>= atomically . newTVar :: IO (TVar (Sessions (UserPayload Bool)))
+     userDB   <- read (fileBackend "www/data/users.db") >>= atomically . newTVar
+     addr <- inet_addr "127.0.0.1"
+
+     let myPayload = userDB & counter & sessions
 
      let myConfig = defaultConfig
            { listenOn =
@@ -65,5 +68,5 @@ main =
                , SockAddrInet 9090 addr
                ] }
 
-     start myConfig myHandler (udb, (count, sessions))
+     start myConfig myHandler myPayload
 
