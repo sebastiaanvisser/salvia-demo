@@ -1,23 +1,26 @@
 module Network.Salvia.Handler.ColorLog
-( Counter
+( Counter (..)
+, hCounter
 , hColorLog
 , hColorLogWithCounter
-, hCounter
 )
 where
 
-import Control.Applicative
-import Control.Concurrent.STM
 import Control.Monad.State
 import Data.List
 import Data.Maybe
-import Data.Record.Label
+import Data.Record.Label hiding (get)
 import Network.Protocol.Http
 import Network.Salvia.Core.Aspects hiding (server)
 import System.IO
 import Terminal
 
-type Counter = TVar Integer
+newtype Counter = Counter { unCounter :: Integer }
+
+{- | This handler simply increases the request counter variable. -}
+
+hCounter :: PayloadM m p Counter => m Counter
+hCounter = payload (modify (Counter . (+1) . unCounter) >> get)
 
 {- |
 A simple logger that prints a summery of the request information to the
@@ -29,22 +32,14 @@ hColorLog = logger Nothing
 
 {- | Like `hLog` but also prints the request count since server startup. -}
 
-hColorLogWithCounter :: (AddressM' m, MonadIO m, HttpM' m) => Counter -> Handle -> m ()
-hColorLogWithCounter a h =
-  do hCounter a
-     c <- Just <$> (liftIO . atomically . readTVar) a
-     logger c h
-
-{- | This handler simply increases the request counter variable. -}
-
-hCounter :: MonadIO m => TVar Integer -> m ()
-hCounter c = (liftIO . atomically) (readTVar c >>= writeTVar c . (+1))
+hColorLogWithCounter :: (PayloadM m p Counter, AddressM' m, MonadIO m, HttpM' m) => Handle -> m ()
+hColorLogWithCounter h = hCounter >>= flip logger h . Just
 
 -- Helper functions.
 
-logger :: (AddressM' m, MonadIO m, HttpM' m) => Maybe Integer -> Handle -> m ()
+logger :: (AddressM' m, MonadIO m, HttpM' m) => Maybe Counter -> Handle -> m ()
 logger mcount handle =
-  do let count = maybe "-" show mcount
+  do let count = maybe "-" (show . unCounter) mcount
      mt <- request  (getM method)
      ur <- request  (getM uri)
      st <- response (getM status)
