@@ -7,6 +7,8 @@ import Network.Salvia
 import Network.Socket.SendFile
 import System.IO
 
+-- TODO: closing of file after getting filesize?
+
 hSendFileResource :: (MonadIO m, HttpM Response m, SendM m, QueueM m) => FilePath -> m ()
 hSendFileResource f =
   hSafeIO (openBinaryFile f ReadMode) $ \fd ->
@@ -15,5 +17,5 @@ hSendFileResource f =
          do status        =: OK
             contentType   =: Just (fileMime f, Just "utf-8")
             contentLength =: Just fs
-       enqueue (\(s, _) -> sendFile' s fd 0 fs)
+       enqueue (\(s, _) -> sendFile' s f 0 fs)
 
