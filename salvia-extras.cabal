@@ -26,7 +26,7 @@ Library
                     monads-fd,
                     stm,
                     HStringTemplate,
-                    parsec,
+                    parsec ==3.0.*,
                     sendfile,
                     utf8-string,
                     pureMD5
