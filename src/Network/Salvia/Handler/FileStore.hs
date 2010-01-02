@@ -1,5 +1,5 @@
-{-# LANGUAGE FlexibleContexts #-}
-module Network.Salvia.Handler.FileStore (hFileStore) where
+{-# LANGUAGE FlexibleContexts, FlexibleInstances, UndecidableInstances #-}
+module Network.Salvia.Handler.FileStore (hFileStore, hFileStoreFile, hFileStoreDirectory) where
 
 import Control.Exception
 import Control.Monad.Trans
@@ -12,53 +12,81 @@ import Network.Salvia.Handlers
 import Network.Salvia.Httpd
 import qualified Network.Protocol.Http as Http
 
+-- Type class alias.
+
+class    (MonadIO m, BodyM Request m, HttpM' m, SendM m) => F m where
+instance (MonadIO m, BodyM Request m, HttpM' m, SendM m) => F m
+
 -- Top level filestore server.
 
-hFileStore
-  :: (MonadIO m, SendM m, HttpM' m, HttpM Request m, BodyM Request m)
-  => FileStore -> Author -> FilePath -> m ()
-hFileStore fs author _ =
+hFileStore :: (MonadIO m, BodyM Request m, HttpM Response m, SendM m, HttpM Request m) => FileStore -> Author -> FilePath -> m ()
+hFileStore fs author =
+  hFileTypeDispatcher
+    (hFileStoreDirectory fs)
+    (hFileStoreFile fs author)
+
+hFileStoreFile :: F m => FileStore -> Author -> FilePath -> m ()
+hFileStoreFile fs author _ =
   do m <- request (getM method)
      u <- request (getM asUri)
-     let p = dropWhile (=='/') (get path u)
+     let p = mkRelative (get path u)
          q = get query u
-     case (m, q) of
-       (GET,    "history") -> hHistory   fs p
-       (GET,    "latest" ) -> hLatest    fs p
-       (GET,    _        ) -> hRetrieve  fs p q
-       (PUT,    _        ) -> hSave      fs p q author
-       (DELETE, _        ) -> hDelete    fs p q author
-       _                   -> hError Http.NotFound
+
+     -- REST based routing.
+     case (p, m, q) of
+       ("index",  GET,    _        ) -> hIndex     fs
+       ("search", GET,    _        ) -> hSearch    fs q
+       (_,        GET,    "history") -> hHistory   fs p
+       (_,        GET,    "latest" ) -> hLatest    fs p
+       (_,        GET,    _        ) -> hRetrieve  fs p q
+       (_,        PUT,    _        ) -> hSave      fs p q author
+       (_,        DELETE, _        ) -> hDelete    fs p q author
+       _                             -> hError Http.NotFound
+
+hFileStoreDirectory :: F m => FileStore -> FilePath -> m ()
+hFileStoreDirectory fs _ =
+  do u <- request (getM asUri)
+     let p = mkRelative (get path u)
+     run (directory fs p) (intercalate "\n" . map showFS)
+  where showFS (FSFile      f) = f
+        showFS (FSDirectory d) = d ++ "/"
 
 -- Specific filestore handlers.
 
-hRetrieve :: (MonadIO m, HttpM Response m, SendM m) => FileStore -> FilePath -> String -> m ()
+hIndex :: F m => FileStore -> m ()
+hIndex fs = run (index fs) (intercalate "\n")
+
+hSearch :: F m => FileStore -> String -> m ()
+hSearch fs q = run (search fs (defaultSearchQuery { queryPatterns = [q] })) showMatches
+  where showMatches = intercalate "\n" . map showMatch
+        showMatch (SearchMatch f n l) = intercalate ":" [f, show n, l]
+
+hRetrieve :: F m => FileStore -> FilePath -> String -> m ()
 hRetrieve fs p q = run (retrieve fs p (if null q then Nothing else Just q)) id
 
-hLatest :: (MonadIO m, HttpM Response m, SendM m) => FileStore -> FilePath -> m ()
+hLatest :: F m => FileStore -> FilePath -> m ()
 hLatest fs p = run (latest fs p) id
 
-hSave :: (BodyM Request m, MonadIO m, HttpM Response m, SendM m) => FileStore -> FilePath -> Description -> Author -> m ()
+hSave :: F m => FileStore -> FilePath -> Description -> Author -> m ()
 hSave fs p q author =
   do mb <- hRawRequestBody
      case mb of
        Nothing -> hCustomError InternalServerError "no document available"
        Just b  -> run (save fs p author q b) (const "document saved\n")
 
-hDelete :: (MonadIO m, HttpM Response m, SendM m) => FileStore -> FilePath -> Description -> Author -> m ()
+hDelete :: F m => FileStore -> FilePath -> Description -> Author -> m ()
 hDelete fs p q author = run (delete fs p author q) (const "document deleted\n")
 
-hHistory :: (MonadIO m, HttpM Response m, SendM m) => FileStore -> FilePath -> m ()
+hHistory :: F m => FileStore -> FilePath -> m ()
 hHistory fs p =
   run (history fs [p] (TimeRange Nothing Nothing)) showHistory
-  where
-    showHistory = intercalate "\n" . map showRevision
-    showRevision (Revision i d a s _) = intercalate "," [i, show d, showAuthor a, s]
-    showAuthor (Author n e) = n ++ " <" ++ e ++ ">"
+  where showHistory = intercalate "\n" . map showRevision
+        showRevision (Revision i d a s _) = intercalate "," [i, show d, showAuthor a, s]
+        showAuthor (Author n e) = n ++ " <" ++ e ++ ">"
 
 -- Helper functions.
 
-run :: (MonadIO m, HttpM Response m, SendM m) => IO a -> (a -> String) -> m ()
+run :: F m => IO a -> (a -> String) -> m ()
 run action f =
   do e <- liftIO (try action)
      case e of
@@ -74,4 +102,7 @@ mkError Unchanged            = Http.NotFound
 mkError UnsupportedOperation = Http.BadRequest
 mkError NoMaxCount           = Http.InternalServerError
 mkError _                    = Http.BadRequest
+
+mkRelative :: String -> String
+mkRelative = dropWhile (=='/')
 

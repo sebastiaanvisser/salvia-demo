@@ -40,17 +40,13 @@ main =
                 ] (hCustomError Forbidden "Public service running on port 8080.")
               hColorLogWithCounter stdout
 
-     let store repo =
-           hFileTypeDispatcher
-             hDirectoryResource
-             (hFileStore (gitFileStore repo) (Author "sebas" "sfvisser@cs.uu.nl"))
-             repo
+     let filestore repo = hFileStore (gitFileStore repo) (Author "sebas" "sfvisser@cs.uu.nl") repo
 
      let myHandler =
              (hDefaultEnv . myHandlerEnv)
              . hPrefixRouter
                  [ ("/code",        hExtendedFileSystem "src")
-                 , ("/store",       store "www/ap")
+                 , ("/store",       filestore "www/ap")
                  ]
              . hPathRouter
                  [ ("/",            template "www/index.html")
