@@ -20,6 +20,8 @@ Library
                     transformers,
                     fclabels,
                     hscolour,
+                    text,
+                    filestore,
                     network,
                     monads-fd,
                     stm,
