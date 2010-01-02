@@ -2,7 +2,8 @@ module Main where
 
 import Control.Applicative
 import Control.Concurrent.STM
--- import Data.FileStore.Git
+import Data.FileStore.Git
+import Data.FileStore
 import Data.Maybe
 import Data.Record.Label
 import Network.Protocol.Http
@@ -10,7 +11,7 @@ import Network.Salvia hiding (server)
 import Network.Salvia.Handler.ColorLog
 import Network.Salvia.Handler.ExtendedFileSystem
 import Network.Salvia.Handler.StringTemplate
--- import Network.Salvia.Handler.FileStore
+import Network.Salvia.Handler.FileStore
 import Network.Salvia.Impl.Server
 import Network.Socket hiding (Socket, send)
 import Prelude hiding (read)
@@ -39,13 +40,17 @@ main =
                 ] (hCustomError Forbidden "Public service running on port 8080.")
               hColorLogWithCounter stdout
 
---      let fs = gitFileStore "."
+     let store repo =
+           hFileTypeDispatcher
+             hDirectoryResource
+             (hFileStore (gitFileStore repo) (Author "sebas" "sfvisser@cs.uu.nl"))
+             repo
 
      let myHandler =
              (hDefaultEnv . myHandlerEnv)
              . hPrefixRouter
                  [ ("/code",        hExtendedFileSystem "src")
---                  , ("/filestore",   hFileStore fs (undefined))
+                 , ("/store",       store "www/ap")
                  ]
              . hPathRouter
                  [ ("/",            template "www/index.html")
