@@ -36,24 +36,10 @@ Library
                     Network.Salvia.Handler.ExtendedFileSystem,
                     Network.Salvia.Handler.SendFile,
                     Network.Salvia.Handler.HsColour
-  Extensions:       FlexibleContexts
-                    FlexibleInstances 
-                    RankNTypes
-                    ScopedTypeVariables
-                    TypeOperators
-                    MultiParamTypeClasses
-                    GeneralizedNewtypeDeriving
 
 Executable          salvia-extras-demo
   Executable:       salvia-extras-demo
   Main-is:          Demo.hs
   GHC-Options:      -threaded -Wall -fno-warn-orphans
   HS-Source-Dirs:   src 
-  Extensions:       FlexibleContexts
-                    FlexibleInstances 
-                    RankNTypes
-                    ScopedTypeVariables
-                    TypeOperators
-                    MultiParamTypeClasses
-                    GeneralizedNewtypeDeriving
 

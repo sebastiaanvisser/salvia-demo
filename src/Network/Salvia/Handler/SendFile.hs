@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 module Network.Salvia.Handler.SendFile (hSendFileResource) where
 
 import Control.Monad.Trans

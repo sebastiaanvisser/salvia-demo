@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 module Network.Salvia.Handler.ExtendedFileSystem (hExtendedFileSystem) where
 
 import Control.Applicative
