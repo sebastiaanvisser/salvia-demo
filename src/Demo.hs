@@ -2,6 +2,7 @@ module Main where
 
 import Control.Applicative
 import Control.Concurrent.STM
+-- import Data.FileStore.Git
 import Data.Maybe
 import Data.Record.Label
 import Network.Protocol.Http
@@ -9,6 +10,7 @@ import Network.Salvia hiding (server)
 import Network.Salvia.Handler.ColorLog
 import Network.Salvia.Handler.ExtendedFileSystem
 import Network.Salvia.Handler.StringTemplate
+-- import Network.Salvia.Handler.FileStore
 import Network.Salvia.Impl.Server
 import Network.Socket hiding (Socket, send)
 import Prelude hiding (read)
@@ -37,18 +39,25 @@ main =
                 ] (hCustomError Forbidden "Public service running on port 8080.")
               hColorLogWithCounter stdout
 
-     let myHandler = (hDefaultEnv . myHandlerEnv) $
-           do hPrefix "/code" (hExtendedFileSystem "src")
-                $ hPathRouter
-                    [ ("/",            template "www/index.html")
-                    , ("/favicon.ico", hError BadRequest)
-                    , ("/loginfo",     hLoginfo)
-                    , ("/logout",      logout >> hRedirect "/")
-                    , ("/login",       login unauth (const $ hRedirect "/"))
-                    , ("/signup",      whenWriteAccess (signup ["read-udb"] unauth (const $ hRedirect "/")))
-                    , ("/users.db",    whenReadAccess (hFileResource "www/data/users.db"))
-                    , ("/sources",     hCGI "www/demo.cgi")
-                    ] (hExtendedFileSystem "www")
+--      let fs = gitFileStore "."
+
+     let myHandler =
+             (hDefaultEnv . myHandlerEnv)
+             . hPrefixRouter
+                 [ ("/code",        hExtendedFileSystem "src")
+--                  , ("/filestore",   hFileStore fs (undefined))
+                 ]
+             . hPathRouter
+                 [ ("/",            template "www/index.html")
+                 , ("/favicon.ico", hError BadRequest)
+                 , ("/loginfo",     hLoginfo)
+                 , ("/logout",      logout >> hRedirect "/")
+                 , ("/login",       login unauth (const $ hRedirect "/"))
+                 , ("/signup",      whenWriteAccess (signup ["read-udb"] unauth (const $ hRedirect "/")))
+                 , ("/users.db",    whenReadAccess (hFileResource "www/data/users.db"))
+                 , ("/sources",     hCGI "www/demo.cgi")
+                 ]
+             $ (hExtendedFileSystem "www")
            where
              unauth          = hCustomError Unauthorized "unauthorized, please login"
              whenReadAccess  = authorized (Just "read-udb")  unauth . const
