@@ -13,23 +13,25 @@ Build-Type:       Simple
 Library
   GHC-Options:      -Wall
   HS-Source-Dirs:   src
-  Build-Depends:    base,
-                    clevercss,
-                    salvia,
-                    salvia-protocol,
-                    transformers,
-                    fclabels,
-                    hscolour,
-                    text,
-                    filestore,
-                    network,
-                    monads-fd,
-                    stm,
-                    HStringTemplate,
+
+  Build-Depends:    base ==4.2.*,
+                    clevercss ==0.1.*,
+                    salvia ==0.3.*,
+                    salvia-protocol ==0.1.*,
+                    transformers ==0.1.*,
+                    fclabels ==0.4.*,
+                    hscolour ==1.15.*,
+                    text ==0.7.*,
+                    filestore ==0.3.*,
+                    network ==2.2.*,
+                    monads-fd ==0.0.*,
+                    stm ==2.1.*,
+                    HStringTemplate ==0.6.*,
                     parsec ==3.0.*,
-                    sendfile,
-                    utf8-string,
-                    pureMD5
+                    sendfile ==0.6.*,
+                    utf8-string ==0.3.*,
+                    pureMD5 ==1.0.*
+
   Other-Modules:    Terminal
   Exposed-modules:  Network.Salvia.Handler.ColorLog
                     Network.Salvia.Handler.CleverCSS,
