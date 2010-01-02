@@ -4,6 +4,7 @@ module Network.Salvia.Handler.FileStore (hFileStore, hFileStoreFile, hFileStoreD
 import Control.Exception
 import Control.Monad.Trans
 import Data.List (intercalate)
+import Data.List.Split
 import Data.FileStore
 import Data.Record.Label
 import Network.Protocol.Http hiding (NotFound)
@@ -57,9 +58,16 @@ hIndex :: F m => FileStore -> m ()
 hIndex fs = run (index fs) (intercalate "\n")
 
 hSearch :: F m => FileStore -> String -> m ()
-hSearch fs q = run (search fs (defaultSearchQuery { queryPatterns = [q] })) showMatches
+hSearch fs q =
+  do run (search fs sq) showMatches
   where showMatches = intercalate "\n" . map showMatch
         showMatch (SearchMatch f n l) = intercalate ":" [f, show n, l]
+        sq = defaultSearchQuery
+               { queryMatchAll   = False
+               , queryWholeWords = False
+               , queryIgnoreCase = False
+               , queryPatterns   = splitOn "&" q
+               }
 
 hRetrieve :: F m => FileStore -> FilePath -> String -> m ()
 hRetrieve fs p q = run (retrieve fs p (if null q then Nothing else Just q)) id

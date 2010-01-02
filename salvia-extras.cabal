@@ -30,7 +30,8 @@ Library
                     parsec ==3.0.*,
                     sendfile ==0.6.*,
                     utf8-string ==0.3.*,
-                    pureMD5 ==1.0.*
+                    pureMD5 ==1.0.*,
+                    split ==0.1.*
 
   Other-Modules:    Terminal
   Exposed-modules:  Network.Salvia.Handler.ColorLog
