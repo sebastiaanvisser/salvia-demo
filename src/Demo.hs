@@ -46,7 +46,7 @@ main =
              (hDefaultEnv . myHandlerEnv)
              . hPrefixRouter
                  [ ("/code",        hExtendedFileSystem "src")
-                 , ("/store",       filestore "www/ap")
+                 , ("/store",       filestore ".")
                  ]
              . hPathRouter
                  [ ("/",            template "www/index.html")
@@ -67,7 +67,6 @@ main =
              unauth          = hCustomError Unauthorized "unauthorized, please login"
              whenReadAccess  = authorized (Just "read-udb")  unauth . const
              whenWriteAccess = authorized (Just "write-udb") unauth . const
-
 
      counter  <- atomically (newTVar (Counter 0))
      sessions <- mkSessions >>= atomically . newTVar :: IO (TVar (Sessions (UserPayload Bool)))
