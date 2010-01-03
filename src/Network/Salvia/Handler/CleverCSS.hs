@@ -17,9 +17,7 @@ hFilterCSS :: (MonadIO m, HttpM' m, SendM m, Alternative m) => m () -> m () -> m
 hFilterCSS css = hExtension (Just "css") (hFile <|> css)
 
 hCleverCSS :: (MonadIO m, BodyM Request m, HttpM' m, SendM m) => m ()
-hCleverCSS = 
-  do p <- hRequestParameters "utf-8"
-     maybe (return ()) hParametrizedCleverCSS p
+hCleverCSS = hRequestParameters "utf-8" >>= maybe (return ()) hParametrizedCleverCSS
 
 hParametrizedCleverCSS :: (MonadIO m, HttpM' m, SendM m) => Parameters -> m ()
 hParametrizedCleverCSS p =
