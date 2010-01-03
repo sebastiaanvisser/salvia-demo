@@ -34,11 +34,13 @@ Library
                     split ==0.1.*
 
   Other-Modules:    Terminal
-  Exposed-modules:  Network.Salvia.Handler.ColorLog
-                    Network.Salvia.Handler.CleverCSS,
+  Exposed-modules:  Network.Salvia.Handler.CleverCSS,
+                    Network.Salvia.Handler.ColorLog
                     Network.Salvia.Handler.ExtendedFileSystem,
-                    Network.Salvia.Handler.SendFile,
+                    Network.Salvia.Handler.FileStore
                     Network.Salvia.Handler.HsColour
+                    Network.Salvia.Handler.SendFile
+                    Network.Salvia.Handler.StringTemplate
 
 Executable          salvia-extras-demo
   Executable:       salvia-extras-demo
