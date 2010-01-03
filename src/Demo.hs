@@ -50,6 +50,10 @@ main =
                  ]
              . hPathRouter
                  [ ("/",            template "www/index.html")
+                 , ("/لغة عربية",   hCustomError OK "arabic")
+                 , ("/Ελληνική",    hCustomError OK "greek")
+                 , ("/Русский",     hCustomError OK "russian")
+                 , ("/עִבְרִית",    hCustomError OK "hebrew")
                  , ("/favicon.ico", hError BadRequest)
                  , ("/loginfo",     hLoginfo)
                  , ("/logout",      logout >> hRedirect "/")
