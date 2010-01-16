@@ -7,7 +7,8 @@ module Network.Salvia.Handler.CleverCSS
 where
 
 import Control.Applicative
-import Control.Monad.Trans
+import Control.Monad.State
+import Data.Record.Label hiding (get)
 import Network.Protocol.Uri
 import Network.Protocol.Http
 import Network.Salvia
@@ -17,10 +18,11 @@ hFilterCSS :: (MonadIO m, HttpM' m, SendM m, Alternative m) => m () -> m () -> m
 hFilterCSS css = hExtension (Just "css") (hFile <|> css)
 
 hCleverCSS :: (MonadIO m, BodyM Request m, HttpM' m, SendM m) => m ()
-hCleverCSS = hRequestParameters "utf-8" >>= maybe (return ()) hParametrizedCleverCSS
+hCleverCSS = hRequestParameters "utf-8" >>= hParametrizedCleverCSS
 
 hParametrizedCleverCSS :: (MonadIO m, HttpM' m, SendM m) => Parameters -> m ()
 hParametrizedCleverCSS p =
-  hRewriteExt (fmap ('c':)) (hFileFilter convert)
+  do hRewriteExt (fmap ('c':)) (hFileFilter convert)
+     response (contentType =: Just ("text/css", Just "utf-8"))
   where convert = either id id . flip (cleverCSSConvert "") (map (fmap $ maybe "" id) p)
 
