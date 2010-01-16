@@ -6,11 +6,15 @@
 
 <header>
   <h1>Demo</h1>
-  <p id="counter">Request count: $counter$</p>
   <p id="banner"></p>
 </header>
 
 <ul>
+  <li>Request counter: <span id="counter">$counter$</span></li>
+  <li>
+    Web Socket, ping counter: <span id="ping">$ping$</span><br>
+    <a href="javascript:sendPing()">ping</a>
+  </li>
   <li><a href="/loginfo">session and login information</a></li>
   <li><a href="/signup.html">signup form</a></li>
   <li><a href="/login.html">login form</a></li>
@@ -34,5 +38,12 @@
 
 <script>
   if ("$username$") document.getElementById("banner").innerHTML = "Welcome: $username$!";
+
+  var ws = new WebSocket("ws://localhost:8080/ping");
+  ws.onmessage = function (a) { document.getElementById("ping").innerHTML = a.data; };
+  ws.onopen    = function (a) { document.getElementById("ping").innerHTML += " (waiting for initial data)"; };
+  ws.onclose   = function (a) { document.getElementById("ping").innerHTML += " (connection closed)"; };
+  function sendPing () { ws.send("pingpongballen"); }
+
 </script>
 
