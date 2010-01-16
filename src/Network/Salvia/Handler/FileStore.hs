@@ -13,20 +13,19 @@ import Network.Salvia.Handlers
 import Network.Salvia.Httpd
 import qualified Network.Protocol.Http as Http
 
--- Type class alias.
-
-class    (MonadIO m, BodyM Request m, HttpM' m, SendM m) => F m where
-instance (MonadIO m, BodyM Request m, HttpM' m, SendM m) => F m
-
 -- Top level filestore server.
 
-hFileStore :: (MonadIO m, BodyM Request m, HttpM Response m, SendM m, HttpM Request m) => FileStore -> Author -> FilePath -> m ()
+hFileStore
+  :: (MonadIO m, BodyM Request m, HttpM' m, SendM m)
+  => FileStore -> Author -> FilePath -> m ()
 hFileStore fs author =
   hFileTypeDispatcher
     (hFileStoreDirectory fs)
     (hFileStoreFile fs author)
 
-hFileStoreFile :: F m => FileStore -> Author -> FilePath -> m ()
+hFileStoreFile
+  :: (MonadIO m, BodyM Request m, HttpM' m, SendM m)
+  => FileStore -> Author -> FilePath -> m ()
 hFileStoreFile fs author _ =
   do m <- request (getM method)
      u <- request (getM asUri)
@@ -44,13 +43,20 @@ hFileStoreFile fs author _ =
        (_,        DELETE, _        ) -> hDelete    fs p q author
        _                             -> hError Http.NotFound
 
-hFileStoreDirectory :: F m => FileStore -> FilePath -> m ()
+hFileStoreDirectory
+  :: (MonadIO m, BodyM Request m, HttpM' m, SendM m)
+  => FileStore -> FilePath -> m ()
 hFileStoreDirectory fs _ =
   do u <- request (getM asUri)
      let p = mkRelative (get path u)
      run (directory fs p) (intercalate "\n" . map showFS)
   where showFS (FSFile      f) = f
         showFS (FSDirectory d) = d ++ "/"
+
+-- Type class alias.
+
+class    (MonadIO m, BodyM Request m, HttpM' m, SendM m) => F m where
+instance (MonadIO m, BodyM Request m, HttpM' m, SendM m) => F m
 
 -- Specific filestore handlers.
 
@@ -77,10 +83,8 @@ hLatest fs p = run (latest fs p) id
 
 hSave :: F m => FileStore -> FilePath -> Description -> Author -> m ()
 hSave fs p q author =
-  do mb <- hRawRequestBody
-     case mb of
-       Nothing -> hCustomError InternalServerError "no document available"
-       Just b  -> run (save fs p author q b) (const "document saved\n")
+  do b <- hRawRequestBody
+     run (save fs p author q b) (const "document saved\n")
 
 hDelete :: F m => FileStore -> FilePath -> Description -> Author -> m ()
 hDelete fs p q author = run (delete fs p author q) (const "document deleted\n")
