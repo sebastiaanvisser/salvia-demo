@@ -50,3 +50,9 @@ Executable          salvia-extras-demo
   GHC-Options:      -threaded -Wall -fno-warn-orphans
   HS-Source-Dirs:   src 
 
+Executable          salvia-serve
+  Executable:       salvia-serve
+  Main-is:          Serve.hs
+  GHC-Options:      -threaded -Wall -fno-warn-orphans
+  HS-Source-Dirs:   src 
+
