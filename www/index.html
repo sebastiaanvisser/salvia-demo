@@ -1,13 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <!-- html5! -->
 <title>Salvia demo.</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta charset="utf-8">
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta charset=utf-8>
 <link rel=stylesheet href=index.css type=text/css>
 
 <header>
   <h1>Demo</h1>
-  <p id="banner"></p>
+  <p id=banner></p>
 </header>
 
 <ul>
@@ -15,19 +15,20 @@
   <!-- <li>
     Web Socket, ping counter: <span id=ping>$ping$</span><br>
     <a href="javascript:sendPing()">ping</a>
-  <li><a href="/loginfo">session and login information</a></li>
-  <li><a href="/signup.html">signup form</a></li>
-  <li><a href="/login.html">login form</a></li>
-  <li><a href="/logout">logout</a></li>
-  <li><a href="/users.db">user database</a></li>
-  <li><a href="/code/">source directory</a></li>
-  <li><a href="/code/Demo.hs">this demo</a></li>
-  <li><a href="/sources">CGI demo</a></li>
+  </li> -->
   <li><a href=/index.css>css file</a> (<a href=/index.ccss>CleverCSS source</a>)</li>
+  <li><a href=/loginfo>session and login information</a></li>
+  <li><a href=/signup.html>signup form</a></li>
+  <li><a href=/login.html>login form</a></li>
+  <li><a href=/logout>logout</a></li>
+  <li><a href=/users.db>user database</a></li>
+  <li><a href=/code/>source directory</a></li>
+  <li><a href=/code/Demo.hs>this demo</a></li>
+  <li><a href=/sources>CGI demo</a></li>
   <li>
-    <a href="/store">filestore of this demo</a><br>
-    <a href="/store/src/Demo.hs?history">history of this demo</a><br>
-    <a href="/store/src/Demo.hs?9813f75">first version of this demo</a><br>
+    <a href=/store>filestore of this demo</a><br>
+    <a href=/store/src/Demo.hs?history>history of this demo</a><br>
+    <a href=/store/src/Demo.hs?9813f75>first version of this demo</a><br>
   </li>
   <li>unicode urls:<br>
     <a href="/لغة عربية">arabic</a><br>
@@ -40,11 +41,10 @@
 <script>
   if ("$username$") document.getElementById("banner").innerHTML = "Welcome: $username$!";
 
-  var ws = new WebSocket("ws://localhost:8080/ping");
-  ws.onmessage = function (a) { document.getElementById("ping").innerHTML = a.data; };
-  ws.onopen    = function (a) { document.getElementById("ping").innerHTML += " (waiting for initial data)"; };
-  ws.onclose   = function (a) { document.getElementById("ping").innerHTML += " (connection closed)"; };
-  function sendPing () { ws.send("pingpongballen"); }
-
+ // var ws = new WebSocket("ws://localhost:8080/ping");
+ // ws.onmessage = function (a) { document.getElementById("ping").innerHTML = a.data; };
+ // ws.onopen    = function (a) { document.getElementById("ping").innerHTML += " (waiting for initial data)"; };
+ // ws.onclose   = function (a) { document.getElementById("ping").innerHTML += " (connection closed)"; };
+ // function sendPing () { ws.send("pingpongballen"); }
 </script>
 
