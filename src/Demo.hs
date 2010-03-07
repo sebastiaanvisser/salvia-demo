@@ -79,7 +79,7 @@ main =
                  , ("/עִבְרִית",    hCustomError OK "hebrew")
                  , ("/ping",        hWebSocket "myproto" wsLoop)
                  , ("/favicon.ico", hError BadRequest)
-                 , ("/loginfo",     hLoginfo)
+                 , ("/loginfo",     loginfo)
                  , ("/logout",      logout >> hRedirect "/")
                  , ("/login",       login unauth (const $ hRedirect "/"))
                  , ("/signup",      whenWriteAccess (signup ["read-udb"] unauth (const $ hRedirect "/")))
