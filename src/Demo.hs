@@ -15,7 +15,7 @@ import Network.Salvia.Handler.ColorLog
 import Network.Salvia.Handler.ExtendedFileSystem
 import Network.Salvia.Handler.FileStore
 import Network.Salvia.Handler.StringTemplate
-import Network.Salvia.Handler.WebSocket
+-- import Network.Salvia.Handler.WebSocket
 import Network.Salvia.Impl.Server
 import Network.Socket hiding (Socket, send)
 import Prelude hiding (read)
