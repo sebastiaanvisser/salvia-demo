@@ -53,16 +53,16 @@ main =
 
      let filestore repo = hFileStore (gitFileStore repo) (Author "sebas" "sfvisser@cs.uu.nl") repo
 
-     let wsLoop =  do tm <- (lift . liftIO) Tm.make
-                      _ <- lift . forker tm . forever $
-                             do c <- (liftIO . atomically) (readTMVar ping)
-                                hSendFrame (show c)
-
-                      -- hOnMessage 100 $ (const . liftIO . atomically) (takeTMVar ping >>= putTMVar ping . (+1))
-                    
-                      _ <- (lift . liftIO) (Tm.waitForAll tm)
-                      (lift . liftIO) (print "done")
-                      return ()
+--      let wsLoop =  do tm <- (lift . liftIO) Tm.make
+--                       _ <- lift . forker tm . forever $
+--                              do c <- (liftIO . atomically) (readTMVar ping)
+--                                 hSendFrame (show c)
+-- 
+--                       -- hOnMessage 100 $ (const . liftIO . atomically) (takeTMVar ping >>= putTMVar ping . (+1))
+--                     
+--                       _ <- (lift . liftIO) (Tm.waitForAll tm)
+--                       (lift . liftIO) (print "done")
+--                       return ()
 
      let myHandler =
              (hDefaultEnv . myHandlerEnv)
@@ -77,7 +77,7 @@ main =
                  , ("/Ελληνική",    hCustomError OK "greek")
                  , ("/Русский",     hCustomError OK "russian")
                  , ("/עִבְרִית",    hCustomError OK "hebrew")
-                 , ("/ping",        hWebSocket "myproto" wsLoop)
+                 -- , ("/ping",        hWebSocket "myproto" wsLoop)
                  , ("/favicon.ico", hError BadRequest)
                  , ("/loginfo",     loginfo)
                  , ("/logout",      logout >> hRedirect "/")
