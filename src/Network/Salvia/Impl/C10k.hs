@@ -1,4 +1,4 @@
-module Network.Salvia.Impl.C10k (server) where
+module Network.Salvia.Impl.C10k (start) where
 
 import Control.Monad.State
 import Network.C10kServer
@@ -8,9 +8,10 @@ import Network.Salvia.Impl.Context
 import Network.Salvia.Impl.Handler
 import Network.Socket
 
-server :: String -> String -> C10kConfig -> Handler Config p () -> p -> IO ()
-server host admin conf handler payload =
-   do runC10kServer
+start :: String -> String -> C10kConfig -> Handler Config p () -> p -> IO ()
+start host admin conf handler payload =
+   do putStrLn ("Starting listening server on: 0.0.0.0:" ++ portName conf)
+      runC10kServer
         (\s h i ->
           do my   <- (addrAddress . head) `fmap` getAddrInfo Nothing (Just (myAddr i))   (Just (myPort i))
              peer <- (addrAddress . head) `fmap` getAddrInfo Nothing (Just (peerAddr i)) (Just (peerPort i))
