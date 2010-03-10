@@ -1,5 +1,5 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-module Network.Salvia.Impl.C10k (start) where
+module Network.Salvia.Impl.C10k (start, C10kHandler (..)) where
 
 import Data.Monoid
 import Control.Monad.State
