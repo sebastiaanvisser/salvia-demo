@@ -20,7 +20,7 @@ newtype Counter = Counter { unCounter :: Integer }
 
 {- | This handler simply increases the request counter variable. -}
 
-hCounter :: PayloadM m p Counter => m Counter
+hCounter :: PayloadM p Counter m => m Counter
 hCounter = payload (modify (Counter . (+1) . unCounter) >> get)
 
 {- |
@@ -33,13 +33,13 @@ hColorLog = logger Nothing
 
 {- | Like `hLog` but also prints the request count since server startup. -}
 
-hColorLogWithCounter :: (PayloadM m p Counter, AddressM' m, MonadIO m, HttpM' m) => Handle -> m ()
+hColorLogWithCounter :: (PayloadM p Counter m, AddressM' m, MonadIO m, HttpM' m) => Handle -> m ()
 hColorLogWithCounter h = hCounter >>= flip logger h . Just
 
 -- Helper functions.
 
 logger :: (AddressM' m, MonadIO m, HttpM' m) => Maybe Counter -> Handle -> m ()
-logger mcount handle =
+logger mcount h =
   do let count = maybe "-" (show . unCounter) mcount
      mt <- request  (getM method)
      ur <- request  (getM uri)
@@ -48,7 +48,7 @@ logger mcount handle =
      ca <- clientAddress
      sa <- serverAddress
      liftIO
-       . hPutStrLn handle
+       . hPutStrLn h
        $ intercalate " ; "
          [ fromMaybe "" dt
          , show sa

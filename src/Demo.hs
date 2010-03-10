@@ -3,10 +3,10 @@ module Main where
 
 -- import Network.Salvia.Handler.WebSocket
 import Control.Applicative
-import Control.Concurrent
+-- import Control.Concurrent
 import Control.Concurrent.STM
 import Control.Monad
-import Control.Monad.Trans
+-- import Control.Monad.Trans
 import Data.FileStore
 import Data.Maybe
 import Data.Record.Label
@@ -19,7 +19,7 @@ import Network.Salvia.Handler.StringTemplate
 import Network.Socket hiding (Socket, send)
 import Prelude hiding (read)
 import System.IO
-import qualified Control.Concurrent.ThreadManager as Tm
+-- import qualified Control.Concurrent.ThreadManager as Tm
 import qualified Control.Monad.State as S
 
 main :: IO ()
@@ -101,6 +101,6 @@ main =
 
      start myConfig myHandler myPayload
 
-forker :: (ForkM m IO, MonadIO m) => Tm.ThreadManager -> m () -> m ThreadId
-forker tm = forkM >=> liftIO . Tm.fork tm
+-- forker :: (ForkM IO m, MonadIO m) => Tm.ThreadManager -> m () -> m ThreadId
+-- forker tm = forkM >=> liftIO . Tm.fork tm
 
