@@ -30,6 +30,7 @@ Library
                     HStringTemplate ==0.6.*,
                     sendfile ==0.6.*,
                     utf8-string ==0.3.*,
+                    c10k ==0.1.0.1,
                     pureMD5 ==1.0.*,
                     split ==0.1.*,
                     threadmanager ==0.1.*
@@ -42,6 +43,7 @@ Library
                     Network.Salvia.Handler.HsColour
                     Network.Salvia.Handler.SendFile
                     Network.Salvia.Handler.StringTemplate
+                    Network.Salvia.Impl.C10k
 
 Executable          salvia-extras-demo
   Executable:       salvia-extras-demo
