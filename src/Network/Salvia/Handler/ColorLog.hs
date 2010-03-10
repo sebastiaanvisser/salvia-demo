@@ -12,7 +12,7 @@ import Data.List
 import Data.Maybe
 import Data.Record.Label hiding (get)
 import Network.Protocol.Http
-import Network.Salvia.Core.Aspects hiding (server)
+import Network.Salvia.Interface
 import System.IO
 import Terminal
 

@@ -12,8 +12,8 @@ import Data.List
 import Data.Record.Label
 import Language.Haskell.HsColour.CSS
 import Network.Protocol.Http
+import Network.Salvia.Interface
 import Network.Salvia.Handlers
-import Network.Salvia.Httpd
 
 hHighlightHaskell :: HttpM Request m => m a -> m a -> m a
 hHighlightHaskell highlighter = 

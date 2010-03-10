@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Main where
 
+-- import Network.Salvia.Handler.WebSocket
 import Control.Applicative
 import Control.Concurrent
 import Control.Concurrent.STM
@@ -10,18 +11,16 @@ import Data.FileStore
 import Data.Maybe
 import Data.Record.Label
 import Network.Protocol.Http
-import Network.Salvia hiding (server)
+import Network.Salvia
 import Network.Salvia.Handler.ColorLog
 import Network.Salvia.Handler.ExtendedFileSystem
 import Network.Salvia.Handler.FileStore
 import Network.Salvia.Handler.StringTemplate
--- import Network.Salvia.Handler.WebSocket
-import Network.Salvia.Impl.Server
 import Network.Socket hiding (Socket, send)
 import Prelude hiding (read)
 import System.IO
-import qualified Control.Monad.State as S
 import qualified Control.Concurrent.ThreadManager as Tm
+import qualified Control.Monad.State as S
 
 main :: IO ()
 main =
@@ -46,7 +45,7 @@ main =
               hColorLogWithCounter stdout
 
      counter  <- atomically (newTVar (Counter 0))
-     ping     <- atomically (newTMVar (0 :: Integer))
+--      ping     <- atomically (newTMVar (0 :: Integer))
      sessions <- mkSessions >>= atomically . newTVar :: IO (TVar (Sessions (UserPayload Bool)))
      userDB   <- read (fileBackend "www/data/users.db") >>= atomically . newTVar
      addr <- inet_addr "127.0.0.1"
@@ -69,7 +68,7 @@ main =
              . hPrefixRouter
                  [ ("/code",        hExtendedFileSystem "src")
                  , ("/store",       filestore ".")
-                 , ("/g",           hProxy "http://")
+--                  , ("/g",           hProxy "http://")
                  ]
              . hPathRouter
                  [ ("/",            template "www/index.html")

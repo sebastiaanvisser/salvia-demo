@@ -3,14 +3,14 @@ module Network.Salvia.Handler.FileStore (hFileStore, hFileStoreFile, hFileStoreD
 
 import Control.Exception
 import Control.Monad.Trans
+import Data.FileStore
 import Data.List (intercalate)
 import Data.List.Split
-import Data.FileStore
 import Data.Record.Label
 import Network.Protocol.Http hiding (NotFound)
 import Network.Protocol.Uri
 import Network.Salvia.Handlers
-import Network.Salvia.Httpd
+import Network.Salvia.Interface
 import qualified Network.Protocol.Http as Http
 
 -- Top level filestore server.
