@@ -10,7 +10,7 @@ import Network.Salvia.Impl.Context
 import Network.Salvia.Interface
 import Network.Salvia.Impl.Handler
 import Network.Socket
-import Network.TCPInfo
+import System.IO
 
 newtype C10kHandler p a = C10kHandler (Handler p a)
   deriving
@@ -44,10 +44,10 @@ runC10kHandler (C10kHandler h) = runHandler h
 start :: String -> String -> C10kConfig -> C10kHandler p () -> p -> IO ()
 start hst admn conf handler pyld =
    do putStrLn ("Starting listening server on: 0.0.0.0:" ++ portName conf)
-      flip runC10kServer conf $ \s h i ->
-        do let addrPort a p = addrAddress . head <$> getAddrInfo Nothing (Just a) (Just p)
-           my   <- addrPort (myAddr   i) (myPort   i)
-           peer <- addrPort (peerAddr i) (peerPort i)
+      flip runC10kServer conf $ \s ->
+        do p <- getPeerName s
+           n <- getSocketName s
+           h <- socketToHandle s ReadWriteMode
            _ <- runC10kHandler handler
              Context
              { _cServerHost  = hst
@@ -60,8 +60,8 @@ start hst admn conf handler pyld =
              , _cRawResponse = emptyResponse
              , _cSocket      = s
              , _cHandle      = h
-             , _cClientAddr  = peer
-             , _cServerAddr  = my
+             , _cClientAddr  = p
+             , _cServerAddr  = n
              , _cQueue       = []
              }
            return ()
