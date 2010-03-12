@@ -10,7 +10,7 @@ import System.IO
 
 -- TODO: closing of file after getting filesize?
 
-hSendFileResource :: (MonadIO m, HttpM Response m, SendM m, QueueM m) => FilePath -> m ()
+hSendFileResource :: (MonadIO m, HttpM Response m, SendM m, SocketQueueM m) => FilePath -> m ()
 hSendFileResource f =
   hSafeIO (openBinaryFile f ReadMode) $ \fd ->
   hSafeIO (hFileSize fd)              $ \fs ->
@@ -18,5 +18,5 @@ hSendFileResource f =
          do status        =: OK
             contentType   =: Just (fileMime f, Just "utf-8")
             contentLength =: Just fs
-       enqueue (\(s, _) -> sendFile' s f 0 fs)
+       enqueueSock (\s -> sendFile' s f 0 fs)
 
