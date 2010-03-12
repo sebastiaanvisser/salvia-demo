@@ -14,7 +14,7 @@ import Data.Record.Label hiding (get)
 import Network.Protocol.Http
 import Network.Salvia.Interface
 import System.IO
-import Terminal
+import Util.Terminal
 
 newtype Counter = Counter { unCounter :: Integer }
 

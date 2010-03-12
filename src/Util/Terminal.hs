@@ -1,68 +1,68 @@
-module Terminal (
+module Util.Terminal
+( esc
 
-    esc
+, clearAll
+, clearEol
+, clear   
 
-  , clearAll
-  , clearEol
-  , clear   
+, move
+, moveUp     
+, moveDown   
+, moveBack   
+, moveForward
 
-  , move
-  , moveUp     
-  , moveDown   
-  , moveBack   
-  , moveForward
+, save
+, load
 
-  , save
-  , load
+, clr
+, fg
+, bg
 
-  , clr
-  , fg
-  , bg
+, normal   
+, bold     
+, faint    
+, standout 
+, underline
+, blink    
+, inverse  
+, invisible
 
-  , normal   
-  , bold     
-  , faint    
-  , standout 
-  , underline
-  , blink    
-  , inverse  
-  , invisible
+, Color (..)
 
-  , Color (..)
+, reset
+, black  
+, red    
+, green  
+, yellow 
+, blue   
+, magenta
+, cyan   
+, white  
 
-  , reset
-  , black  
-  , red    
-  , green  
-  , yellow 
-  , blue   
-  , magenta
-  , cyan   
-  , white  
+, blackBold  
+, redBold    
+, greenBold  
+, yellowBold 
+, blueBold   
+, magentaBold
+, cyanBold   
+, whiteBold  
 
-  , blackBold  
-  , redBold    
-  , greenBold  
-  , yellowBold 
-  , blueBold   
-  , magentaBold
-  , cyanBold   
-  , whiteBold  
+, blackBg  
+, redBg    
+, greenBg  
+, yellowBg 
+, blueBg   
+, magentaBg
+, cyanBg   
+, whiteBg  
+, resetBg  
 
-  , blackBg  
-  , redBg    
-  , greenBg  
-  , yellowBg 
-  , blueBg   
-  , magentaBg
-  , cyanBg   
-  , whiteBg  
-  , resetBg  
-
-  , width
-  , height
-  , geometry
-  ) where
+, width
+, height
+, geometry
+)
+where
 
 import Control.Applicative
 import Data.List (intercalate)

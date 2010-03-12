@@ -35,7 +35,7 @@ Library
                     split ==0.1.*,
                     threadmanager ==0.1.*
 
-  Other-Modules:    Terminal
+  Other-Modules:    Util.Terminal
   Exposed-modules:  Network.Salvia.Handler.CleverCSS,
                     Network.Salvia.Handler.ColorLog
                     Network.Salvia.Handler.ExtendedFileSystem,
