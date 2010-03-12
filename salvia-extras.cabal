@@ -53,7 +53,7 @@ Executable          salvia-extras-demo
 
 Executable          salvia-serve
   Executable:       salvia-serve
-  Main-is:          Serve.hs
+  Main-is:          ServeDemo.hs
   GHC-Options:      -threaded -Wall -fno-warn-orphans
   HS-Source-Dirs:   src 
 

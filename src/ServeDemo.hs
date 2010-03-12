@@ -23,6 +23,6 @@ main =
     , user                   = "sebas"
     , group                  = "wheel"
     }
-  (hDefaultEnv (hExtendedFileSystem ".")) --  >> hColorLog stdout))
+  (hDefaultEnv (hExtendedFileSystem "." >> hColorLog stdout))
   ()
 
