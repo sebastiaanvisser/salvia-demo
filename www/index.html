@@ -13,8 +13,8 @@
 <ul>
   <li>Request counter: <span id=counter>$counter$</span></li>
   <li>
-    Web Socket, ping counter: <span id=ping>$ping$</span><br>
-    <a href="javascript:sendPing()">ping</a>
+    Web Socket, ping counter: <span id=ping>$ping$</span>
+    <a href="javascript:sendPing()"><strong>ping</strong></a>
   </li>
   <li><a href=/index.css>css file</a> (<a href=/index.ccss>CleverCSS source</a>)</li>
   <li><a href=/loginfo>session and login information</a></li>
@@ -41,10 +41,20 @@
 <script>
   if ("$username$") document.getElementById("banner").innerHTML = "Welcome: $username$!";
 
- var ws = new WebSocket("ws://localhost:8080/ping");
- ws.onmessage = function (a) { document.getElementById("ping").innerHTML = a.data; };
- ws.onopen    = function (a) { document.getElementById("ping").innerHTML += " (waiting for initial data)"; };
- ws.onclose   = function (a) { document.getElementById("ping").innerHTML += " (connection closed)"; };
- function sendPing () { ws.send("ping!"); }
+  var ws, open = false;
+
+  function wsOpen ()
+  {
+    if (open) return;
+    ws = new WebSocket("ws://localhost:8080/ping");
+    ws.onmessage = function (a) { document.getElementById("ping").innerHTML = a.data; };
+    ws.onopen    = function (a) { open = true; document.getElementById("ping").innerHTML += " (waiting for initial data)"; };
+    ws.onclose   = function (a) { open = false; document.getElementById("ping").innerHTML = " (connection closed)"; };
+  }
+
+  wsOpen();
+  setInterval(wsOpen, 100);
+
+  function sendPing () { ws.send("ping!"); }
 </script>
 
