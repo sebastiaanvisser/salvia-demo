@@ -60,9 +60,9 @@ logger mcount h =
          [ dt
          , show sa
          , count
-         , show mt
+         , methodToColor mt ++ show mt ++ reset
          , show ca
-         , ur
+         , whiteBold ++ ur ++ reset
          , statusToColor st ++ show (codeFromStatus st) ++
            " " ++ show st ++ reset
          ]
@@ -75,4 +75,8 @@ statusToColor st =
       | c <= 399 -> yellowBold
       | c <= 499 -> redBold
     _            -> magentaBold
+
+methodToColor :: Method -> String
+methodToColor GET = whiteBold
+methodToColor _   = yellowBold
 
