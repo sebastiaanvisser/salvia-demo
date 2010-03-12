@@ -1,6 +1,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving, FlexibleContexts #-}
 module Network.Salvia.Impl.Cgi
-( hCgiEnv
+( CgiHandler (..)
+, hCgiEnv
 , runCgiHandler
 , start
 )
