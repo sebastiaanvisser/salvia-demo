@@ -1,5 +1,5 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-module Network.Salvia.Impl.C10k (start, C10kHandler (..)) where
+module Network.Salvia.Impl.C10k where
 
 import Data.Monoid
 import Control.Monad.State
@@ -21,7 +21,9 @@ newtype C10kHandler p a = C10kHandler (Handler p a)
   , ClientAddressM 
   , FlushM Request 
   , FlushM Response 
+  , ForkM IO
   , Functor 
+  , HandleM 
   , HttpM Request 
   , HttpM Response 
   , Monad
@@ -32,10 +34,9 @@ newtype C10kHandler p a = C10kHandler (Handler p a)
   , RawHttpM Request 
   , RawHttpM Response 
   , SendM 
-  , ForkM IO
   , ServerAddressM 
   , ServerM 
-  , SockM 
+  , SocketM 
   )
 
 runC10kHandler :: C10kHandler p a -> Context p -> IO (a, Context p)
