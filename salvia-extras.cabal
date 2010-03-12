@@ -1,7 +1,7 @@
 Name:             salvia-extras
 Version:          0.3.0
-Description:      Collection of non-fundamental request handler for the Salvia web server.
-Synopsis:         Collection of non-fundamental request handler for the Salvia web server.
+Description:      Collection of non-fundamental request handler for the Salvia web server and some demos.
+Synopsis:         Collection of non-fundamental request handler for the Salvia web server and some demos.
 Category:         Network, Web
 License:          BSD3
 License-file:     LICENSE
