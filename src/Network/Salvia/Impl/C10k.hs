@@ -53,7 +53,7 @@ start hst admn conf handler pyld =
              Context
              { _cServerHost  = hst
              , _cAdminMail   = admn
-             , _cListenOn    = [{-todo-}]
+             , _cListenOn    = [n]
              , _cPayload     = pyld
              , _cRequest     = emptyRequest
              , _cResponse    = emptyResponse
@@ -67,25 +67,3 @@ start hst admn conf handler pyld =
              }
            return ()
 
-{-
-
-test :: IO ()
-test = 
-  server "localhost" "root@localhost"
-  C10kConfig
-    { initHook               = return ()
-    , exitHook               = \s -> putStrLn ("C10k error:" ++ s)
-    , parentStartedHook      = return ()
-    , startedHook            = return ()
-    , sleepTimer             = 10
-    , preforkProcessNumber   = 10
-    , threadNumberPerProcess = 100
-    , portName               = "8080"
-    , pidFile                = "pid"
-    , user                   = "sebas"
-    , group                  = "wheel"
-    }
-  (hDefaultEnv (hExtendedFileSystem "." >> hColorLog stdout))
-  ()
-
--}
