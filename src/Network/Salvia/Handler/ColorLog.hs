@@ -7,13 +7,17 @@ module Network.Salvia.Handler.ColorLog
 )
 where
 
+import Control.Applicative
 import Control.Monad.State
 import Data.List
-import Data.Maybe
 import Data.Record.Label hiding (get)
+import Data.Time.Clock
+import Data.Time.Format
+import Data.Time.LocalTime
 import Network.Protocol.Http
 import Network.Salvia.Interface
 import System.IO
+import System.Locale
 import Util.Terminal
 
 newtype Counter = Counter { unCounter :: Integer }
@@ -28,29 +32,32 @@ A simple logger that prints a summery of the request information to the
 specified file handle.
 -}
 
-hColorLog :: (AddressM' m, MonadIO m, HttpM' m) => Handle -> m ()
+hColorLog :: (AddressM' m, MonadIO m, RawHttpM Request m, HttpM Response m) => Handle -> m ()
 hColorLog = logger Nothing
 
 {- | Like `hLog` but also prints the request count since server startup. -}
 
-hColorLogWithCounter :: (PayloadM p Counter m, AddressM' m, MonadIO m, HttpM' m) => Handle -> m ()
+hColorLogWithCounter :: (PayloadM p Counter m, AddressM' m, MonadIO m, RawHttpM Request m, HttpM Response m) => Handle -> m ()
 hColorLogWithCounter h = hCounter >>= flip logger h . Just
 
 -- Helper functions.
 
-logger :: (AddressM' m, MonadIO m, HttpM' m) => Maybe Counter -> Handle -> m ()
+logger :: (AddressM' m, MonadIO m, RawHttpM Request m, HttpM Response m) => Maybe Counter -> Handle -> m ()
 logger mcount h =
   do let count = maybe "-" (show . unCounter) mcount
-     mt <- request  (getM method)
-     ur <- request  (getM uri)
+     mt <- rawRequest  (getM method)
+     ur <- rawRequest  (getM uri)
      st <- response (getM status)
-     dt <- response (getM date)
      ca <- clientAddress
      sa <- serverAddress
+     dt <- liftIO $
+       do zone <- getCurrentTimeZone
+          time <- utcToLocalTime zone <$> getCurrentTime
+          return $ formatTime defaultTimeLocale "%a, %d %b %Y %H:%M:%S %z" time
      liftIO
        . hPutStrLn h
        $ intercalate " ; "
-         [ fromMaybe "" dt
+         [ dt
          , show sa
          , count
          , show mt
