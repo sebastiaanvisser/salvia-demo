@@ -44,6 +44,7 @@ Library
                     Network.Salvia.Handler.SendFile
                     Network.Salvia.Handler.StringTemplate
                     Network.Salvia.Impl.C10k
+                    Network.Salvia.Impl.Cgi
 
 Executable          salvia-extras-demo
   Executable:       salvia-extras-demo
@@ -54,6 +55,12 @@ Executable          salvia-extras-demo
 Executable          salvia-serve
   Executable:       salvia-serve
   Main-is:          ServeDemo.hs
+  GHC-Options:      -threaded -Wall -fno-warn-orphans
+  HS-Source-Dirs:   src 
+
+Executable          salvia.cgi
+  Executable:       salvia.cgi
+  Main-is:          CgiDemo.hs
   GHC-Options:      -threaded -Wall -fno-warn-orphans
   HS-Source-Dirs:   src 
 
