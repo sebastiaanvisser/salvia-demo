@@ -1,23 +1,26 @@
 {-# LANGUAGE FlexibleContexts, TypeOperators #-}
 module Network.Salvia.Handler.WebSocket
 ( Protocol
-, upgrade
 , wsOrigin
 , wsLocation
 , wsProtocol
 , hWebSocket
 , hRecvFrameNonBlocking
 , hSendFrame
+
 , hOnMessage
+, hSendTMVar
+, hOnMessageUpdateTMVar
 )
 where
 
 import Control.Concurrent
+import Control.Concurrent.STM
 import Control.Monad.State
 import Data.Record.Label hiding (get)
 import Network.Protocol.Http hiding (NotFound)
 import Network.Salvia.Handlers
-import Network.Salvia.Httpd hiding (server, hostname)
+import Network.Salvia.Interface
 import qualified Data.ByteString.Lazy as B
 import qualified Data.ByteString.Lazy.UTF8 as U
 
@@ -45,11 +48,11 @@ hWebSocket proto act =
      hFlushResponseHeaders
      evalStateT act B.empty
 
-hRecvFrameNonBlocking :: (MonadIO m, SockM m) => Int -> StateT U.ByteString m (Maybe String)
+hRecvFrameNonBlocking :: (MonadIO m, HandleM m) => Int -> StateT U.ByteString m (Maybe String)
 hRecvFrameNonBlocking size =
   do prev <- get
      (frame, rest) <- lift $
-       do s <- sock
+       do s <- handle
           raw <- liftIO (B.hGetNonBlocking s size)
           let (first, rest) = B.break (== 0xFF) raw
           if not (B.null rest) && B.head rest == 0xFF
@@ -66,15 +69,23 @@ hSendFrame str =
      sendBs (B.singleton 0xFF)
      flushQueue forResponse
 
-hOnMessage :: (SockM m, MonadIO m) => Int -> (String -> m ()) -> WebSocketT m ()
-hOnMessage ms act = loop
-  where
-  loop =
-    do lift . liftIO $ threadDelay (ms * 1000)
-       frame <- hRecvFrameNonBlocking 100
-       case frame of
-         Nothing -> return ()
-         Just f  -> lift (act f)
-       loop
+hOnMessage :: (HandleM m, MonadIO m) => Int -> (String -> m ()) -> WebSocketT m ()
+hOnMessage ms act = forever $
+  do lift . liftIO $ threadDelay (ms * 1000)
+     frame <- hRecvFrameNonBlocking 100
+     case frame of
+       Nothing -> return ()
+       Just f  -> lift (act f)
 
+hSendTMVar :: (SendM m, MonadIO m, FlushM Response m, Eq a, Show a) => Int -> TMVar a -> m ()
+hSendTMVar ms var = loop Nothing
+  where 
+  loop prev =
+    do cur <- liftIO $ (threadDelay (ms * 1000) >> atomically (readTMVar var))
+       when (Just cur /= prev) $ hSendFrame (show cur)
+       loop (Just cur)
+
+hOnMessageUpdateTMVar :: (HandleM m, MonadIO m) => Int -> (String -> a -> a) -> TMVar a -> WebSocketT m ()
+hOnMessageUpdateTMVar ms f var =
+  hOnMessage ms $ \msg -> (liftIO . atomically) (takeTMVar var >>= putTMVar var . (f msg))
 
