@@ -4,5 +4,5 @@ import Network.Salvia.Impl.Cgi
 import Network.Salvia.Handler.ExtendedFileSystem
 
 main :: IO ()
-main = start (hCgiEnv (hExtendedFileSystem ".")) ()
+main = start "/code/salvia-extras" (hCgiEnv (hExtendedFileSystem ".")) ()
 

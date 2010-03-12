@@ -62,8 +62,8 @@ hCgiEnv handler =
 runCgiHandler :: CgiHandler p a -> Context p -> IO (a, Context p)
 runCgiHandler (CgiHandler h) = runHandler h
 
-start :: Show p => CgiHandler p () -> p -> IO ()
-start handler pyld =
+start :: Show p => String -> CgiHandler p () -> p -> IO ()
+start prefix handler pyld =
   do env <- getEnvironment
 
      -- Setup HTTP request from environment variables.
@@ -71,7 +71,7 @@ start handler pyld =
          qy   = maybe "" ('?':)                (lookup "QUERY_STRING"    env)
          mthd = maybe GET methodFromString     (lookup "REQUEST_METHOD"  env)
          prot = maybe http11 versionFromString (lookup "SERVER_PROTOCOL" env)
-         req  = Http (Request mthd (fromJust (stripPrefix "/code/salvia-extras" ur) ++ qy)) prot (getHeaders env)
+         req  = Http (Request mthd (fromMaybe ur (stripPrefix prefix ur) ++ qy)) prot (getHeaders env)
 
      -- Both the server and client address/port combinations.
      sa <- getAddrInfo Nothing (lookup "SERVER_ADDR" env) (lookup "SERVER_PORT" env)

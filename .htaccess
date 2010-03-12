@@ -1,5 +1,5 @@
 Options +Includes +ExecCGI +FollowSymLinks +Indexes
 RewriteEngine on
-RewriteRule www/(.*) ./salvia.cgi [L]
+RewriteRule /(.*) ./salvia.cgi [L]
 AddHandler cgi-script .cgi
 AddDefaultCharset utf-8
