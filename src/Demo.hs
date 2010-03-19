@@ -5,8 +5,6 @@ import Control.Concurrent
 import qualified Control.Concurrent.ThreadManager as Tm
 import Control.Applicative
 import Control.Concurrent.STM
-import Control.Monad
-import Control.Monad.Trans
 import Data.FileStore
 import Data.Maybe
 import Data.Record.Label
@@ -21,6 +19,9 @@ import Network.Socket hiding (Socket, send)
 import Prelude hiding (read)
 import System.IO
 import qualified Control.Monad.State as S
+-- At the bottom to prevent warnings (?)
+import Control.Monad
+import Control.Monad.Trans
 
 main :: IO ()
 main =
