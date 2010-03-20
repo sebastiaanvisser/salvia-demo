@@ -48,7 +48,7 @@ main =
      tm       <- Tm.make
      counter  <- atomically (newTVar (Counter 0))
      ping     <- atomically (newTMVar (0 :: Integer))
-     sessions <- mkSessions >>= atomically . newTVar :: IO (TVar (Sessions (UserPayload Bool)))
+     sessions <- atomically (newTVar mkSessions) :: IO (TVar (Sessions (UserPayload Bool)))
      userDB   <- read (fileBackend "www/data/users.db") >>= atomically . newTVar
      addr     <- inet_addr "127.0.0.1"
 
