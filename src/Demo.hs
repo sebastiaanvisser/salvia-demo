@@ -40,7 +40,7 @@ main =
               hPortRouter
                 [ ( 8080
                   , hVirtualHosting
-                      [ ("127.0.0.1", hRedirect "http://localhost:8080/")
+                      [ ("localhost", hRedirect "http://127.0.0.1:8080/")
                       ] handler)
                 ] (hCustomError Forbidden "Public service running on port 8080.")
               hColorLogWithCounter stdout

@@ -9,7 +9,7 @@ import System.IO
 
 main :: IO ()
 main = 
-  start "localhost" "root@localhost"
+  start "127.0.0.1" "root@localhost"
   C10kConfig
     { initHook               = return ()
     , exitHook               = \s -> putStrLn ("C10kServer error:" ++ s)
