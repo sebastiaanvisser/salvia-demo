@@ -22,7 +22,7 @@ import Util.Terminal
 
 newtype Counter = Counter { unCounter :: Integer }
 
-{- | This handler simply increases the request counter variable. -}
+-- | This handler simply increases the request counter variable.
 
 hCounter :: PayloadM p Counter m => m Counter
 hCounter = payload (modify (Counter . (+1) . unCounter) >> get)
@@ -32,21 +32,21 @@ A simple logger that prints a summery of the request information to the
 specified file handle.
 -}
 
-hColorLog :: (AddressM' m, MonadIO m, RawHttpM Request m, HttpM Response m) => Handle -> m ()
+hColorLog :: (AddressM' m, MonadIO m, HttpM' m) => Handle -> m ()
 hColorLog = logger Nothing
 
-{- | Like `hLog` but also prints the request count since server startup. -}
+-- | Like `hLog` but also prints the request count since server startup.
 
-hColorLogWithCounter :: (PayloadM p Counter m, AddressM' m, MonadIO m, RawHttpM Request m, HttpM Response m) => Handle -> m ()
+hColorLogWithCounter :: (PayloadM p Counter m, AddressM' m, MonadIO m, HttpM' m) => Handle -> m ()
 hColorLogWithCounter h = hCounter >>= flip logger h . Just
 
 -- Helper functions.
 
-logger :: (AddressM' m, MonadIO m, RawHttpM Request m, HttpM Response m) => Maybe Counter -> Handle -> m ()
+logger :: (AddressM' m, MonadIO m, HttpM' m) => Maybe Counter -> Handle -> m ()
 logger mcount h =
   do let count = maybe "-" (show . unCounter) mcount
-     mt <- rawRequest  (getM method)
-     ur <- rawRequest  (getM uri)
+     mt <- request (getM method)
+     ur <- request (getM uri)
      st <- response (getM status)
      ca <- clientAddress
      sa <- serverAddress
