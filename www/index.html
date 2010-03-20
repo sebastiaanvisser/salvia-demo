@@ -46,7 +46,7 @@
   function wsOpen ()
   {
     if (open) return;
-    ws = new WebSocket("ws://localhost:8080/ping");
+    ws = new WebSocket("ws://127.0.0.1:8080/ping");
     ws.onmessage = function (a) { document.getElementById("ping").innerHTML = a.data; };
     ws.onopen    = function (a) { open = true; document.getElementById("ping").innerHTML += " (waiting for initial data)"; };
     ws.onclose   = function (a) { open = false; document.getElementById("ping").innerHTML = " (connection closed)"; };
