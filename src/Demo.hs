@@ -1,9 +1,8 @@
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts, NoMonomorphismRestriction #-}
 module Main where
 
-import Control.Concurrent
-import qualified Control.Concurrent.ThreadManager as Tm
 import Control.Applicative
+import Control.Concurrent
 import Control.Concurrent.STM
 import Data.FileStore
 import Data.Maybe
@@ -18,6 +17,7 @@ import Network.Salvia.Handler.WebSocket
 import Network.Socket hiding (Socket, send)
 import Prelude hiding (read)
 import System.IO
+import qualified Control.Concurrent.ThreadManager as Tm
 import qualified Control.Monad.State as S
 -- At the bottom to prevent warnings (?)
 import Control.Monad
@@ -50,7 +50,7 @@ main =
      ping     <- atomically (newTMVar (0 :: Integer))
      sessions <- mkSessions >>= atomically . newTVar :: IO (TVar (Sessions (UserPayload Bool)))
      userDB   <- read (fileBackend "www/data/users.db") >>= atomically . newTVar
-     addr <- inet_addr "127.0.0.1"
+     addr     <- inet_addr "127.0.0.1"
 
      let filestore repo = hFileStore (gitFileStore repo) (Author "sebas" "sfvisser@cs.uu.nl") repo
 
