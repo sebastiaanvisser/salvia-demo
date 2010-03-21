@@ -51,7 +51,7 @@ main =
               hColorLogWithCounter stdout
 
      -- Data directories packed in Cabal package.
-     www <- getDataFileName "."
+     www <- getDataFileName "www"
      db  <- getDataFileName "www/data/users.db"
      cgi <- getDataFileName "www/demo.cgi"
      idx <- getDataFileName "www/index.html"
