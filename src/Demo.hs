@@ -72,7 +72,7 @@ main =
              (hDefaultEnv . myHandlerEnv)
              . hPrefixRouter
                  [ ("/code",        hExtendedFileSystem "src")
-                 , ("/store",       filestore www)
+                 , ("/store",       filestore ".")
                  ]
              . hPathRouter
                  [ ("/",            template idx)
@@ -89,7 +89,7 @@ main =
                  , ("/users.db",    whenReadAccess (hFileResource db))
                  , ("/sources",     hCGI cgi)
                  ]
-             $ (hExtendedFileSystem "www")
+             $ (hExtendedFileSystem www)
            where
              unauth          = hCustomError Unauthorized "unauthorized, please login"
              whenReadAccess  = authorized (Just "read-udb")  unauth . const
