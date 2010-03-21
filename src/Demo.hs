@@ -14,18 +14,22 @@ import Network.Salvia.Handler.ExtendedFileSystem
 import Network.Salvia.Handler.FileStore
 import Network.Salvia.Handler.StringTemplate
 import Network.Salvia.Handler.WebSocket
+import Network.Salvia.Handler.Login
+import Network.Salvia.Handler.Session
 import Network.Socket hiding (Socket, send)
 import Prelude hiding (read)
 import System.IO
 import qualified Control.Concurrent.ThreadManager as Tm
 import qualified Control.Monad.State as S
+import Paths_salvia_demo
 -- At the bottom to prevent warnings (?)
 import Control.Monad
 import Control.Monad.Trans
 
 main :: IO ()
 main =
-  do let template tmpl =
+  do -- Index HTML template.
+     let template tmpl =
            do s <- show . isJust . get sPayload <$> getSession
               u <- maybe "anonymous" (get username) <$> hGetUser
               c <- show . (+1) . unCounter <$> payload S.get
@@ -35,6 +39,7 @@ main =
                 , ("counter",  c)
                 ]
 
+     -- Handler environment to run handler in.
      let myHandlerEnv handler =
            do prolongSession (60 * 60) -- Expire after one hour of inactivity.
               hPortRouter
@@ -45,11 +50,17 @@ main =
                 ] (hCustomError Forbidden "Public service running on port 8080.")
               hColorLogWithCounter stdout
 
+     -- Data directories packed in Cabal package.
+     www <- getDataFileName "."
+     db  <- getDataFileName "www/data/users.db"
+     cgi <- getDataFileName "www/demo.cgi"
+     idx <- getDataFileName "www/index.html"
+
      tm       <- Tm.make
      counter  <- atomically (newTVar (Counter 0))
      ping     <- atomically (newTMVar (0 :: Integer))
      sessions <- atomically (newTVar mkSessions) :: IO (TVar (Sessions (UserPayload Bool)))
-     userDB   <- read (fileBackend "www/data/users.db") >>= atomically . newTVar
+     userDB   <- read (fileBackend db) >>= atomically . newTVar
      addr     <- inet_addr "127.0.0.1"
 
      let filestore repo = hFileStore (gitFileStore repo) (Author "sebas" "sfvisser@cs.uu.nl") repo
@@ -61,10 +72,10 @@ main =
              (hDefaultEnv . myHandlerEnv)
              . hPrefixRouter
                  [ ("/code",        hExtendedFileSystem "src")
-                 , ("/store",       filestore ".")
+                 , ("/store",       filestore www)
                  ]
              . hPathRouter
-                 [ ("/",            template "www/index.html")
+                 [ ("/",            template idx)
                  , ("/لغة عربية",   hCustomError OK "arabic")
                  , ("/Ελληνική",    hCustomError OK "greek")
                  , ("/Русский",     hCustomError OK "russian")
@@ -75,8 +86,8 @@ main =
                  , ("/logout",      logout >> hRedirect "/")
                  , ("/login",       login unauth (const $ hRedirect "/"))
                  , ("/signup",      whenWriteAccess (signup ["read-udb"] unauth (const $ hRedirect "/")))
-                 , ("/users.db",    whenReadAccess (hFileResource "www/data/users.db"))
-                 , ("/sources",     hCGI "www/demo.cgi")
+                 , ("/users.db",    whenReadAccess (hFileResource db))
+                 , ("/sources",     hCGI cgi)
                  ]
              $ (hExtendedFileSystem "www")
            where

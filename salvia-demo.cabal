@@ -1,7 +1,7 @@
-Name:             salvia-extras
+Name:             salvia-demo
 Version:          0.3.0
-Description:      Collection of non-fundamental request handler for the Salvia web server and some demos.
-Synopsis:         Collection of non-fundamental request handler for the Salvia web server and some demos.
+Description:      Demo Salvia server.
+Synopsis:         Demo Salvia server.
 Category:         Network, Web
 License:          BSD3
 License-file:     LICENSE
@@ -9,6 +9,13 @@ Author:           Sebastiaan Visser
 Maintainer:       sfvisser@cs.uu.nl
 Cabal-version:    >= 1.6
 Build-Type:       Simple
+
+Data-Files:       www/data/users.db
+                  www/demo.cgi
+                  www/index.ccss
+                  www/index.html
+                  www/login.html
+                  www/signup.html
 
 Library
   GHC-Options:      -Wall
@@ -20,6 +27,8 @@ Library
                     salvia ==0.3.*,
                     salvia-protocol ==0.1.*,
                     transformers ==0.1.*,
+                    salvia-extras ==0.3.*,
+                    salvia-sessions ==1.0.*,
                     fclabels ==0.4.*,
                     hscolour ==1.15.*,
                     text >= 0.5 && < 0.8,
@@ -36,17 +45,6 @@ Library
                     pureMD5 ==1.0.*,
                     split ==0.1.*,
                     threadmanager ==0.1.*
-
-  Other-Modules:    Util.Terminal
-  Exposed-modules:  Network.Salvia.Handler.CleverCSS,
-                    Network.Salvia.Handler.ColorLog
-                    Network.Salvia.Handler.ExtendedFileSystem,
-                    Network.Salvia.Handler.FileStore
-                    Network.Salvia.Handler.HsColour
-                    Network.Salvia.Handler.SendFile
-                    Network.Salvia.Handler.StringTemplate
-                    Network.Salvia.Impl.C10k
-                    Network.Salvia.Impl.Cgi
 
 Executable          salvia-extras-demo
   Executable:       salvia-extras-demo
