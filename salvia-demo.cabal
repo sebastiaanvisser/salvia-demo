@@ -68,3 +68,9 @@ Executable          salvia-helloworld
   Main-is:          HelloWorld.hs
   GHC-Options:      -threaded -Wall -fno-warn-orphans
   HS-Source-Dirs:   src
+
+Executable          salvia-query
+  Executable:       salvia-query
+  Main-is:          QueryParams.hs
+  GHC-Options:      -threaded -Wall -fno-warn-orphans
+  HS-Source-Dirs:   src
