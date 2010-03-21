@@ -54,3 +54,8 @@ Executable          salvia.cgi
   GHC-Options:      -threaded -Wall -fno-warn-orphans
   HS-Source-Dirs:   src 
 
+Executable          salvia-helloworld
+  Executable:       salvia-helloworld
+  Main-is:          HelloWorld.hs
+  GHC-Options:      -threaded -Wall -fno-warn-orphans
+  HS-Source-Dirs:   src
