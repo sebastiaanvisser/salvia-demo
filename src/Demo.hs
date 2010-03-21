@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts, NoMonomorphismRestriction #-}
+{-# LANGUAGE CPP, FlexibleContexts, NoMonomorphismRestriction #-}
 module Main where
 
 import Control.Applicative
@@ -21,7 +21,9 @@ import Prelude hiding (read)
 import System.IO
 import qualified Control.Concurrent.ThreadManager as Tm
 import qualified Control.Monad.State as S
+#ifdef Cabal
 import Paths_salvia_demo
+#endif
 -- At the bottom to prevent warnings (?)
 import Control.Monad
 import Control.Monad.Trans
@@ -51,10 +53,17 @@ main =
               hColorLogWithCounter stdout
 
      -- Data directories packed in Cabal package.
+#ifdef Cabal
      www <- getDataFileName "www"
      db  <- getDataFileName "www/data/users.db"
      cgi <- getDataFileName "www/demo.cgi"
      idx <- getDataFileName "www/index.html"
+#else
+     www <- return "www"
+     db  <- return "www/data/users.db"
+     cgi <- return "www/demo.cgi"
+     idx <- return "www/index.html"
+#endif
 
      tm       <- Tm.make
      counter  <- atomically (newTVar (Counter 0))

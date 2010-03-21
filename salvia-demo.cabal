@@ -48,6 +48,7 @@ Library
 
 Executable          salvia-demo
   Executable:       salvia-demo
+  CPP-Options:      -DCabal
   Main-is:          Demo.hs
   GHC-Options:      -threaded -Wall -fno-warn-orphans
   HS-Source-Dirs:   src 
