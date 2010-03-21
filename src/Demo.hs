@@ -61,7 +61,7 @@ main =
      ping     <- atomically (newTMVar (0 :: Integer))
      sessions <- atomically (newTVar mkSessions) :: IO (TVar (Sessions (UserPayload Bool)))
      userDB   <- read (fileBackend db) >>= atomically . newTVar
-     addr     <- inet_addr "127.0.0.1"
+     addr     <- inet_addr "0.0.0.0"
 
      let filestore repo = hFileStore (gitFileStore repo) (Author "sebas" "sfvisser@cs.uu.nl") repo
 
