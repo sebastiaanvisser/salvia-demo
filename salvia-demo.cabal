@@ -1,7 +1,16 @@
 Name:             salvia-demo
 Version:          1.0.0
-Description:      Demo Salvia servers, one default implementation, one running as CGI and one running on the C10k server.
-Synopsis:         Demo Salvia servers, one default implementation, one running as CGI and one running on the C10k server.
+Synopsis:         Demo Salvia servers.
+Description:
+  This package contains three example programs that show how to use the Salvia
+  web application framework. The first demo, /salvia-demo/, contains a bigger
+  example showing off some of the more advanced features and handler running on
+  the default Salvia server implementation. The second demo, /salvia-cgi/ show
+  how to switch the salvia backend and run a Salvia handler in CGI mode. The
+  third example, /salvia-serve/, is a simple file server that uses the
+  /c10k-server/ backend and the /send-file/ package to server static files and
+  directories.
+
 Category:         Network, Web
 License:          BSD3
 License-file:     LICENSE
@@ -36,8 +45,8 @@ Library
                     salvia-sessions ==1.0.*,
                     salvia-websocket ==1.0.*
 
-Executable          salvia-extras-demo
-  Executable:       salvia-extras-demo
+Executable          salvia-demo
+  Executable:       salvia-demo
   Main-is:          Demo.hs
   GHC-Options:      -threaded -Wall -fno-warn-orphans
   HS-Source-Dirs:   src 
