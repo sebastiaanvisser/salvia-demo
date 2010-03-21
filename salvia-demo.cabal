@@ -1,5 +1,5 @@
 Name:             salvia-demo
-Version:          0.3.0
+Version:          1.0.0
 Description:      Demo Salvia servers, one default implementation, one running as CGI and one running on the C10k server.
 Synopsis:         Demo Salvia servers, one default implementation, one running as CGI and one running on the C10k server.
 Category:         Network, Web
@@ -30,10 +30,11 @@ Library
                     filestore ==0.3.*,
                     fclabels ==0.4.*,
                     network >= 2.2.1.7 && < 2.3,
-                    salvia ==0.3.*,
-                    salvia-protocol ==0.1.*,
-                    salvia-extras ==0.3.*,
-                    salvia-sessions ==1.0.*
+                    salvia ==1.0.*,
+                    salvia-protocol ==1.0.*,
+                    salvia-extras ==1.0.*,
+                    salvia-sessions ==1.0.*,
+                    salvia-websocket ==1.0.*
 
 Executable          salvia-extras-demo
   Executable:       salvia-extras-demo
