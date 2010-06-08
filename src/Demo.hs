@@ -4,37 +4,35 @@ module Main where
 import Control.Applicative
 import Control.Concurrent
 import Control.Concurrent.STM
+import Control.Monad.State
 import Data.FileStore
 import Data.Maybe
 import Data.Record.Label
-import Network.Protocol.Http
+import Network.Protocol.Http hiding (hostname)
 import Network.Salvia
 import Network.Salvia.Handler.ColorLog
 import Network.Salvia.Handler.ExtendedFileSystem
 import Network.Salvia.Handler.FileStore
-import Network.Salvia.Handler.StringTemplate
-import Network.Salvia.Handler.WebSocket
 import Network.Salvia.Handler.Login
 import Network.Salvia.Handler.Session
+import Network.Salvia.Handler.StringTemplate
+import Network.Salvia.Handler.WebSocket
 import Network.Socket hiding (Socket, send)
 import Prelude hiding (read)
 import System.IO
 import qualified Control.Concurrent.ThreadManager as Tm
-import qualified Control.Monad.State as S
 #ifdef Cabal
 import Paths_salvia_demo
 #endif
 -- At the bottom to prevent warnings (?)
-import Control.Monad
-import Control.Monad.Trans
 
 main :: IO ()
 main =
   do -- Index HTML template.
      let template tmpl =
-           do s <- show . isJust . get sPayload <$> getSession
-              u <- maybe "anonymous" (get username) <$> hGetUser
-              c <- show . (+1) . unCounter <$> payload S.get
+           do s <- show . isJust . getL sPayload <$> getSession
+              u <- maybe "anonymous" (getL username) <$> hGetUser
+              c <- show . (+1) . unCounter <$> payload get
               hStringTemplate tmpl
                 [ ("loggedin", s)
                 , ("username", u)
@@ -107,7 +105,8 @@ main =
      let myPayload = userDB & counter & sessions
 
      let myConfig = defaultConfig
-           { listenOn =
+           { hostname = "typ.lab"
+           , listenOn =
                [ SockAddrInet 8080 addr
                , SockAddrInet 9090 addr
                ] }

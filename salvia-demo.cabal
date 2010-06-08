@@ -1,5 +1,5 @@
 Name:             salvia-demo
-Version:          1.0.0
+Version:          1.2.0
 Synopsis:         Demo Salvia servers.
 Description:
   This package contains six simple example programs that show how to use the
@@ -16,7 +16,7 @@ Category:         Network, Web
 License:          BSD3
 License-file:     LICENSE
 Author:           Sebastiaan Visser
-Maintainer:       sfvisser@cs.uu.nl
+Maintainer:       haskell@fvisser.nl
 Cabal-version:    >= 1.6
 Build-Type:       Simple
 
@@ -38,13 +38,13 @@ Library
                     stm ==2.1.*,
                     c10k ==0.2.0,
                     filestore ==0.3.*,
-                    fclabels ==0.4.*,
+                    fclabels ==1.0.*,
                     network >= 2.2.1.7 && < 2.3,
-                    salvia ==1.0.*,
-                    salvia-protocol ==1.0.*,
-                    salvia-extras ==1.0.*,
-                    salvia-sessions ==1.0.*,
-                    salvia-websocket ==1.0.*
+                    salvia ==1.2.*,
+                    salvia-protocol ==1.1.*,
+                    salvia-extras ==1.2.*,
+                    salvia-sessions ==1.2.*,
+                    salvia-websocket ==1.2.*
 
 Executable          salvia-demo
   Executable:       salvia-demo
