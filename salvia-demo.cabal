@@ -32,8 +32,8 @@ Library
   HS-Source-Dirs:   src
 
   Build-Depends:    base ==4.*,
-                    transformers ==0.1.*,
-                    monads-fd ==0.0.*,
+                    transformers < 0.3,
+                    monads-fd < 0.2,
                     threadmanager ==0.1.*,
                     stm ==2.1.*,
                     c10k ==0.2.0,
