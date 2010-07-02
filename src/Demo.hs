@@ -105,7 +105,7 @@ main =
      let myPayload = userDB & counter & sessions
 
      let myConfig = defaultConfig
-           { hostname = "localhost"
+           { domain = "localhost"
            , listenOn =
                [ SockAddrInet 8080 addr
                , SockAddrInet 9090 addr
