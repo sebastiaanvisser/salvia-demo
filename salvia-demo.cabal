@@ -38,7 +38,7 @@ Library
                     stm ==2.1.*,
                     c10k ==0.2.0,
                     filestore ==0.3.*,
-                    fclabels ==1.0.*,
+                    fclabels ==0.9.*,
                     network >= 2.2.1.7 && < 2.3,
                     salvia ==1.2.*,
                     salvia-protocol ==1.1.*,
