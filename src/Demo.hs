@@ -70,7 +70,9 @@ main =
      userDB   <- read (fileBackend db) >>= atomically . newTVar
      addr     <- inet_addr "0.0.0.0"
 
-     let filestore repo = hFileStore (gitFileStore repo) (Author "sebas" "sfvisser@cs.uu.nl") repo
+     let filestore repo = hFileStore (defaultRouter (gitFileStore repo)) 
+                                     (Author "sebas" "haskell@fvisser.nl")
+                                     repo
 
      let ws = lift (forker tm (hSendTMVar 100 ping show))
               >> hOnMessageUpdateTMVar 100 (const (+1)) ping
