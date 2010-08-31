@@ -2,7 +2,7 @@
 module Main where
 
 import Control.Applicative
-import Control.Concurrent
+-- import Control.Concurrent
 import Control.Concurrent.STM
 import Control.Monad.State
 import Data.FileStore
@@ -16,11 +16,11 @@ import Network.Salvia.Handler.FileStore
 import Network.Salvia.Handler.Login
 import Network.Salvia.Handler.Session
 import Network.Salvia.Handler.StringTemplate
-import Network.Salvia.Handler.WebSocket
+-- import Network.Salvia.Handler.WebSocket
 import Network.Socket hiding (Socket, send)
 import Prelude hiding (read)
 import System.IO
-import qualified Control.Concurrent.ThreadManager as Tm
+-- import qualified Control.Concurrent.ThreadManager as Tm
 #ifdef Cabal
 import Paths_salvia_demo
 #endif
@@ -63,9 +63,9 @@ main =
      idx <- return "www/index.html"
 #endif
 
-     tm       <- Tm.make
+--      tm       <- Tm.make
      counter  <- atomically (newTVar (Counter 0))
-     ping     <- atomically (newTMVar (0 :: Integer))
+--      ping     <- atomically (newTMVar (0 :: Integer))
      sessions <- atomically (newTVar mkSessions) :: IO (TVar (Sessions (UserPayload Bool)))
      userDB   <- read (fileBackend db) >>= atomically . newTVar
      addr     <- inet_addr "0.0.0.0"
@@ -74,8 +74,10 @@ main =
                                      (Author "sebas" "haskell@fvisser.nl")
                                      repo
 
-     let ws = lift (forker tm (hSendTMVar 100 ping show))
-              >> hOnMessageUpdateTMVar 100 (const (+1)) ping
+--      let forker tm ac = fork ac >> liftIO . Tm.fork tm
+
+--      let ws = forker tm (hSendTMVar 100 ping show)
+--               >> hOnMessageUpdateTMVar 100 (const (+1)) ping
 
      let myHandler =
              (hDefaultEnv . myHandlerEnv)
@@ -89,7 +91,7 @@ main =
                  , ("/Ελληνική",    hCustomError OK "greek")
                  , ("/Русский",     hCustomError OK "russian")
                  , ("/עִבְרִית",    hCustomError OK "hebrew")
-                 , ("/ping",        hWebSocket "myproto" (lift (hColorLogWithCounter stdout) >> ws))
+--                  , ("/ping",        hWebSocket "myproto" (lift (hColorLogWithCounter stdout) >> ws))
                  , ("/favicon.ico", hError BadRequest)
                  , ("/loginfo",     loginfo)
                  , ("/logout",      logout >> hRedirect "/")
@@ -115,6 +117,4 @@ main =
 
      start myConfig myHandler myPayload
 
-forker :: (ForkM IO m, MonadIO m) => Tm.ThreadManager -> m () -> m ThreadId
-forker tm = forkM >=> liftIO . Tm.fork tm
 
